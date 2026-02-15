@@ -1,0 +1,128 @@
+# Researcher Sub-Agent Output Spec
+# Finds relevant knowledge base articles, past tickets, and policy references
+
+schema:
+  ticket_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  sources:
+    type: list
+    required: true
+    min_items: 0
+    max_items: 5
+    items:
+      type: object
+      fields:
+        title:
+          type: string
+          required: true
+          description: Document or article title
+        path:
+          type: string
+          required: true
+          description: File path or URL to the source
+        relevance_score:
+          type: float
+          required: true
+          min: 0.0
+          max: 1.0
+        excerpt:
+          type: string
+          required: true
+          description: Most relevant passage (max 500 chars)
+        source_type:
+          type: enum
+          required: true
+          values: [knowledge-base, past-ticket, policy, faq, product-doc]
+
+  applicable_policies:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        policy_name:
+          type: string
+          required: true
+        summary:
+          type: string
+          required: true
+          description: One-sentence summary of the relevant policy
+        constraints:
+          type: list
+          required: false
+          items:
+            type: string
+          description: Specific rules or limits from this policy (e.g. "refunds within 30 days")
+
+  similar_tickets:
+    type: list
+    required: false
+    max_items: 3
+    items:
+      type: object
+      fields:
+        ticket_id: { type: string }
+        summary: { type: string }
+        resolution: { type: string }
+        outcome: { type: enum, values: [resolved, escalated, unresolved] }
+
+  suggested_resolution_path:
+    type: enum
+    required: true
+    values:
+      - standard-response     # Known issue, template available
+      - investigate-further   # Need more info from customer
+      - policy-exception      # Requires manager approval
+      - escalate-specialist   # Beyond L1 scope
+      - no-action-needed      # Informational only
+    description: Recommended handling approach based on research
+
+  research_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: How confident the researcher is that sufficient information was found
+
+  gaps:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Information gaps that may need customer clarification
+
+# Example output
+example:
+  ticket_id: "TKT-2026-00142"
+  timestamp: "2026-02-15T09:30:05Z"
+  sources:
+    - title: "Billing Dispute Resolution Process"
+      path: "knowledge-base/billing/dispute-resolution.md"
+      relevance_score: 0.94
+      excerpt: "Duplicate charges should be refunded within 5 business days. Customer must provide invoice number and transaction reference."
+      source_type: policy
+    - title: "February 2026 Billing System Incident"
+      path: "knowledge-base/incidents/2026-02-billing-dupes.md"
+      relevance_score: 0.88
+      excerpt: "Known issue: batch processor duplicated 142 invoices on 2026-02-03. Affected customers being contacted proactively."
+      source_type: knowledge-base
+  applicable_policies:
+    - policy_name: "Refund Policy"
+      summary: "Full refund for duplicate charges, no questions asked"
+      constraints:
+        - "Refund within 5 business days"
+        - "Customer notified via email when processed"
+  similar_tickets:
+    - ticket_id: "TKT-2026-00098"
+      summary: "Duplicate charge on January invoice"
+      resolution: "Refund issued, apology email sent"
+      outcome: resolved
+  suggested_resolution_path: standard-response
+  research_confidence: 0.91
+  gaps: []

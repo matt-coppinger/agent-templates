@@ -1,0 +1,39 @@
+# Customer Service Agent Pipeline Configuration
+
+pipeline:
+  name: customer-service
+  version: "1.0"
+  description: Multi-agent customer service ticket handler with human review
+
+# Model recommendations per sub-agent
+models:
+  classifier: claude-haiku       # Fast, cheap classification
+  researcher: claude-sonnet      # Good reasoning for search/retrieval
+  drafter: claude-sonnet         # Quality writing
+  reviewer: claude-sonnet        # Nuanced quality assessment
+
+# Escalation thresholds
+escalation:
+  auto_escalate_urgency: critical    # Skip draft, go straight to human
+  min_confidence_to_draft: 0.6       # Below this, escalate to human
+  max_retries: 2                     # Drafter retries before escalation
+
+# Tone and brand
+tone:
+  style: professional-friendly       # professional | casual | formal | professional-friendly
+  brand_name: "Your Company"
+  sign_off: "Best regards"
+  language: en-GB                    # Response language
+
+# Knowledge base
+knowledge_base:
+  path: ./knowledge-base/            # Directory of markdown/text docs
+  max_sources: 5                     # Max sources to cite per response
+  similarity_threshold: 0.7          # Min relevance score for results
+
+# Human review
+review:
+  always_review: true                # Set false to auto-send high-confidence responses
+  auto_send_threshold: 0.95          # Confidence threshold for auto-send (if always_review: false)
+  show_classification: true          # Show classification details to reviewer
+  show_sources: true                 # Show knowledge base sources to reviewer

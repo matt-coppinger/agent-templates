@@ -1,0 +1,135 @@
+# Drafter Sub-Agent Output Spec
+# Produces a customer-facing response based on classification and research
+
+schema:
+  ticket_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  response:
+    type: object
+    required: true
+    fields:
+      subject:
+        type: string
+        required: true
+        description: Email/ticket subject line
+
+      greeting:
+        type: string
+        required: true
+        description: Personalised greeting using customer name if available
+
+      body:
+        type: string
+        required: true
+        description: |
+          Main response body. Must:
+          - Address the customer's specific issue
+          - Reference relevant policy or known issue if applicable
+          - Provide clear next steps
+          - Use tone specified in config.yaml
+          - Stay under 300 words
+
+      closing:
+        type: string
+        required: true
+        description: Sign-off matching brand tone
+
+      internal_notes:
+        type: string
+        required: false
+        description: Notes for the human reviewer (not sent to customer)
+
+  actions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        action:
+          type: enum
+          required: true
+          values:
+            - send-response       # Send the drafted response
+            - issue-refund        # Trigger refund process
+            - create-followup     # Schedule follow-up ticket
+            - update-account      # Flag account for update
+            - escalate            # Pass to specialist team
+            - request-info        # Ask customer for more details
+            - no-action           # Informational only
+        details:
+          type: string
+          required: true
+          description: Specifics of the action (amount, team, timeline)
+        requires_approval:
+          type: boolean
+          required: true
+          description: Whether this action needs human sign-off
+
+  citations:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        claim:
+          type: string
+          required: true
+          description: Statement in the response that needs backing
+        source:
+          type: string
+          required: true
+          description: Path or reference to the supporting source
+
+  tone_check:
+    type: object
+    required: true
+    fields:
+      matches_config:
+        type: boolean
+        description: Whether response matches configured tone
+      empathy_present:
+        type: boolean
+        description: Whether response acknowledges customer frustration (if negative sentiment)
+      jargon_free:
+        type: boolean
+        description: Whether response avoids internal/technical jargon
+
+# Example output
+example:
+  ticket_id: "TKT-2026-00142"
+  timestamp: "2026-02-15T09:30:12Z"
+  response:
+    subject: "Re: Duplicate charge on your February invoice"
+    greeting: "Hi Sarah,"
+    body: |
+      Thank you for getting in touch about the duplicate charge on your February invoice.
+
+      You're absolutely right — we identified a billing system issue on 3 February that caused duplicate charges for a number of customers, and your account was affected.
+
+      We've already initiated a full refund of £49.99 to your original payment method. You should see this reflected within 5 business days.
+
+      I'm sorry for the inconvenience. If you notice anything else unusual on your account, please don't hesitate to reach out.
+    closing: "Best regards,\nCustomer Support Team"
+    internal_notes: "Part of the Feb 2026 batch billing incident (142 affected). Refund is standard process, no exception needed."
+  actions:
+    - action: issue-refund
+      details: "£49.99 refund to original payment method"
+      requires_approval: true
+    - action: send-response
+      details: "Send drafted email response"
+      requires_approval: true
+  citations:
+    - claim: "billing system issue on 3 February that caused duplicate charges"
+      source: "knowledge-base/incidents/2026-02-billing-dupes.md"
+    - claim: "refund within 5 business days"
+      source: "knowledge-base/billing/dispute-resolution.md"
+  tone_check:
+    matches_config: true
+    empathy_present: true
+    jargon_free: true

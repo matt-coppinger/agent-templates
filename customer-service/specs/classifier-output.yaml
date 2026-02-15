@@ -1,0 +1,108 @@
+# Classifier Sub-Agent Output Spec
+# Produces structured classification of an incoming customer ticket
+
+schema:
+  ticket_id:
+    type: string
+    required: true
+    description: Unique identifier for the ticket
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of classification
+
+  category:
+    type: enum
+    required: true
+    values:
+      - billing
+      - technical-support
+      - account-management
+      - product-inquiry
+      - complaint
+      - feature-request
+      - returns-refunds
+      - general
+    description: Primary ticket category
+
+  subcategory:
+    type: string
+    required: false
+    description: Freeform subcategory for further routing
+
+  sentiment:
+    type: enum
+    required: true
+    values: [positive, neutral, negative, angry]
+    description: Customer emotional tone
+
+  urgency:
+    type: enum
+    required: true
+    values: [low, medium, high, critical]
+    description: |
+      low: general inquiry, no time pressure
+      medium: needs response within 24h
+      high: service impacted, needs response within 4h
+      critical: service down or legal/safety risk, immediate escalation
+
+  language:
+    type: string
+    required: true
+    description: ISO 639-1 language code detected from ticket
+
+  customer_intent:
+    type: string
+    required: true
+    description: One-sentence summary of what the customer wants
+
+  key_entities:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        entity: { type: string }
+        type: { type: enum, values: [product, feature, order, account, person, date, amount] }
+    description: Extracted entities (products, order numbers, dates, amounts)
+
+  escalation_flags:
+    type: list
+    required: false
+    items:
+      type: enum
+      values:
+        - legal-threat
+        - churn-risk
+        - repeat-contact
+        - accessibility-need
+        - media-mention
+        - regulatory
+    description: Flags that may require specialist handling
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Classifier confidence in the overall assessment
+
+# Example output
+example:
+  ticket_id: "TKT-2026-00142"
+  timestamp: "2026-02-15T09:30:00Z"
+  category: billing
+  subcategory: overcharge
+  sentiment: angry
+  urgency: high
+  language: en
+  customer_intent: "Refund for duplicate charge on February invoice"
+  key_entities:
+    - entity: "February 2026 invoice"
+      type: order
+    - entity: "£49.99"
+      type: amount
+  escalation_flags:
+    - churn-risk
+  confidence: 0.92

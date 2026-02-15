@@ -1,0 +1,131 @@
+# Reviewer Sub-Agent Output Spec
+# Quality gate — validates the draft before human review
+
+schema:
+  ticket_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  verdict:
+    type: enum
+    required: true
+    values:
+      - pass              # Ready for human review
+      - revise            # Send back to drafter with feedback
+      - escalate          # Too complex or risky, needs specialist
+    description: Overall quality verdict
+
+  quality_scores:
+    type: object
+    required: true
+    fields:
+      accuracy:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Do citations support the claims? Are facts correct?
+      completeness:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Does the response address everything the customer raised?
+      tone:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Does it match configured tone? Appropriate empathy?
+      policy_compliance:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Are all commitments within policy? No over-promising?
+      clarity:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Is it clear, concise, and free of jargon?
+
+  overall_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Weighted average of quality scores
+
+  issues:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        severity:
+          type: enum
+          values: [blocker, warning, suggestion]
+        category:
+          type: enum
+          values: [accuracy, tone, policy, completeness, formatting, legal-risk]
+        description:
+          type: string
+          description: What the issue is
+        location:
+          type: string
+          description: Which part of the draft is affected
+        fix_suggestion:
+          type: string
+          description: How to fix it
+
+  risk_flags:
+    type: list
+    required: false
+    items:
+      type: enum
+      values:
+        - financial-commitment    # Response promises money
+        - policy-exception        # Goes beyond standard policy
+        - legal-language          # Contains or should contain legal disclaimers
+        - precedent-setting       # Could set an unwanted precedent
+        - data-privacy            # References personal data
+    description: Flags for human reviewer attention
+
+  revision_notes:
+    type: string
+    required: false
+    description: If verdict is "revise", specific instructions for the drafter
+
+  human_review_summary:
+    type: string
+    required: true
+    description: |
+      2-3 sentence summary for the human reviewer. Highlight what's good,
+      what needs attention, and any risk flags. This is what the human sees first.
+
+# Example output
+example:
+  ticket_id: "TKT-2026-00142"
+  timestamp: "2026-02-15T09:30:18Z"
+  verdict: pass
+  quality_scores:
+    accuracy: 0.95
+    completeness: 0.90
+    tone: 0.92
+    policy_compliance: 1.0
+    clarity: 0.94
+  overall_confidence: 0.94
+  issues:
+    - severity: suggestion
+      category: completeness
+      description: "Could mention the proactive outreach being done for other affected customers"
+      location: body
+      fix_suggestion: "Add: 'We're reaching out to all affected customers to ensure this is resolved.'"
+  risk_flags:
+    - financial-commitment
+  revision_notes: null
+  human_review_summary: |
+    Strong response. Correctly identifies the known billing incident, cites the right
+    policy for 5-day refund timeline, and uses appropriate empathetic tone for an angry
+    customer. One financial commitment (£49.99 refund) flagged for approval. Minor
+    suggestion to mention proactive outreach.
