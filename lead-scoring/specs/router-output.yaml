@@ -1,0 +1,131 @@
+# Router Sub-Agent Output Spec
+# Routes qualified leads to the right team and action
+
+schema:
+  lead_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  routing:
+    type: object
+    required: true
+    fields:
+      team:
+        type: enum
+        required: true
+        values: [enterprise, mid-market, smb]
+      team_rationale:
+        type: string
+        required: true
+        description: Why this team was selected
+
+      recommended_action:
+        type: enum
+        required: true
+        values: [immediate-call, personalised-email, nurture-sequence, disqualify]
+      action_details:
+        type: string
+        required: true
+        description: Specific details for the action (what to say, which sequence, etc.)
+
+      priority:
+        type: integer
+        required: true
+        min: 1
+        max: 5
+        description: "Queue priority: P1 (highest) to P5 (lowest)"
+      priority_rationale:
+        type: string
+        required: true
+
+      sla_hours:
+        type: integer
+        required: true
+        description: Hours within which action should be taken
+
+  talking_points:
+    type: list
+    required: true
+    min_items: 3
+    max_items: 5
+    items:
+      type: object
+      fields:
+        topic:
+          type: string
+          required: true
+          description: What to discuss
+        detail:
+          type: string
+          required: true
+          description: Specific angle or data point to reference
+        source:
+          type: string
+          required: false
+          description: Where this insight came from (enrichment data point)
+
+  follow_up:
+    type: object
+    required: false
+    fields:
+      recommended_content:
+        type: list
+        items:
+          type: string
+        description: Case studies, whitepapers, or resources to share
+      next_step_if_no_response:
+        type: string
+        description: What to do if lead doesn't respond within SLA
+      escalation_path:
+        type: string
+        description: Who to escalate to if deal stalls
+
+  disqualified_routing:
+    type: object
+    required: false
+    description: Only populated when lead is disqualified
+    fields:
+      reason: { type: string }
+      action: { type: enum, values: [full-exclusion, marketing-list, competitive-intel, manual-review] }
+      notes: { type: string }
+
+# Example output
+example:
+  lead_id: "LEAD-2026-00001"
+  timestamp: "2026-02-14T16:45:15Z"
+  routing:
+    team: mid-market
+    team_rationale: "350 employees with estimated $20M-$50M revenue. Sits at the top of mid-market range — could graduate to enterprise if deal size warrants."
+    recommended_action: immediate-call
+    action_details: "Schedule demo call within 48 hours. Lead requested demo 'this week or next' and is bringing CTO and Head of IT. Book 60-minute slot to accommodate multiple stakeholders."
+    priority: 1
+    priority_rationale: "Hot lead (87/100), active vendor evaluation with end-of-March deadline, budget approved, multi-stakeholder engagement. Highest urgency in queue."
+    sla_hours: 24
+  talking_points:
+    - topic: "SAP integration capabilities"
+      detail: "They specifically need complex conditional logic and SAP connectivity — lead with our enterprise integration module and SAP connector."
+      source: "Message: 'integrations with our existing SAP environment'"
+    - topic: "Replacing manual handoffs"
+      detail: "120-person operations team spending excessive time on manual data entry between warehouse and transport systems. Quantify potential time savings."
+      source: "Message: 'manual data entry and handoffs between warehouse management and transport scheduling'"
+    - topic: "Enterprise-grade vs entry-level automation"
+      detail: "They've outgrown Zapier and Make — position us as the step-up for complex workflows without the complexity of full enterprise platforms."
+      source: "Message: 'looked at Zapier and Make but need something more robust'"
+    - topic: "Multi-stakeholder demo approach"
+      detail: "VP Ops, CTO, and Head of IT attending. Prepare separate value narratives: operational efficiency (VP Ops), technical architecture (CTO), implementation and support (Head of IT)."
+      source: "Message: 'bring our CTO and Head of IT along to the call'"
+    - topic: "Timeline and procurement path"
+      detail: "Shortlisting by end of March, Q2 implementation. Align our proposal timeline to their evaluation calendar. Offer a proof of concept to accelerate."
+      source: "Message: 'shortlist three vendors by end of March', 'budget approved for Q2'"
+  follow_up:
+    recommended_content:
+      - "Logistics industry case study"
+      - "SAP integration technical brief"
+      - "ROI calculator for operations automation"
+    next_step_if_no_response: "Follow up via email after 24 hours. If no response within 48 hours, try phone. After 72 hours, escalate to team lead."
+    escalation_path: "Mid-market team lead → Head of Sales (if deal size suggests enterprise handoff)"
+  disqualified_routing: null

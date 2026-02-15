@@ -1,0 +1,23 @@
+Source: Website Demo Request Form
+Submitted: 2026-02-14T16:42:00Z
+
+Name: James Hartley
+Email: j.hartley@meridian-logistics.co.uk
+Job Title: VP of Operations
+Company: Meridian Logistics Group
+Phone: +44 7700 900123
+
+Company Size: 350 employees
+Website: www.meridian-logistics.co.uk
+
+Message:
+Hi there,
+
+We're currently evaluating workflow automation platforms to replace our legacy systems. Our operations team (about 120 people) is spending too much time on manual data entry and handoffs between our warehouse management and transport scheduling systems.
+
+We've looked at Zapier and Make but need something more robust that can handle complex conditional logic and integrations with our existing SAP environment. Our CTO has asked me to shortlist three vendors by end of March and we have budget approved for Q2 implementation.
+
+Ideally we'd like a demo this week or next if possible. Happy to bring our CTO and Head of IT along to the call.
+
+Thanks,
+James

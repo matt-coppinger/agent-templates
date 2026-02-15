@@ -1,0 +1,96 @@
+# Qualifier Sub-Agent Output Spec
+# Classifies leads into qualification tiers with rationale
+
+schema:
+  lead_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  qualification:
+    type: object
+    required: true
+    fields:
+      tier:
+        type: enum
+        required: true
+        values: [hot-lead, warm-lead, cold-lead, disqualified]
+      mql:
+        type: boolean
+        required: true
+        description: Marketing Qualified Lead status
+      sql:
+        type: boolean
+        required: true
+        description: Sales Qualified Lead status
+      score:
+        type: integer
+        required: true
+        description: Total score from scorer
+
+  override_applied:
+    type: boolean
+    required: true
+    description: Whether the qualifier overrode the score-based tier
+
+  override_reason:
+    type: string
+    required: false
+    description: If override applied, why
+
+  disqualification:
+    type: object
+    required: false
+    fields:
+      criterion:
+        type: string
+        description: Which disqualification rule triggered
+      evidence:
+        type: string
+        description: The specific data point that matched
+      recommended_action:
+        type: enum
+        values: [full-exclusion, marketing-list-only, re-engage-after-verification, flag-competitive-intel]
+
+  rationale:
+    type: string
+    required: true
+    description: |
+      2-4 sentence summary a sales manager can scan in 5 seconds.
+      Why this tier? Strongest signal? Biggest gap or risk?
+
+  risk_flags:
+    type: list
+    required: false
+    items:
+      type: enum
+      values:
+        - competitor-intelligence
+        - data-quality-concern
+        - potential-duplicate
+        - overqualified-verify
+        - budget-unconfirmed
+        - single-threaded-deal
+        - long-sales-cycle
+
+# Example output
+example:
+  lead_id: "LEAD-2026-00001"
+  timestamp: "2026-02-14T16:45:10Z"
+  qualification:
+    tier: hot-lead
+    mql: true
+    sql: true
+    score: 87
+  override_applied: false
+  override_reason: null
+  disqualification: null
+  rationale: |
+    Strong hot lead scoring 87/100. VP of Operations at a 350-person logistics company
+    with CTO sponsorship, approved budget for Q2, and actively shortlisting vendors by
+    end of March. Requesting demo this week with multiple stakeholders — classic
+    enterprise-ready buying signal. No disqualification flags or data quality concerns.
+  risk_flags: []

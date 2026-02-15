@@ -1,0 +1,79 @@
+# Lead Scoring Pipeline Configuration
+
+pipeline:
+  name: lead-scoring
+  version: "1.0"
+  description: Multi-agent lead scoring pipeline with enrichment, scoring, qualification, and routing
+
+# Model recommendations per sub-agent
+models:
+  enricher: claude-haiku         # Fast structured extraction
+  scorer: claude-haiku           # Arithmetic scoring against model
+  qualifier: claude-sonnet       # Nuanced judgement calls
+  router: claude-sonnet          # Strategic routing decisions
+
+# Scoring weights (must sum to 100)
+scoring:
+  weights:
+    firmographic_fit: 30         # Company size, industry, revenue match to ICP
+    behavioural_signals: 25      # Source channel, engagement, website activity
+    intent_signals: 25           # Message content, buying language, urgency
+    timing_urgency: 20           # Budget cycle, stated timeline, competitive eval
+
+# Qualification thresholds
+qualification:
+  hot_lead: 75                   # Score >= 75: immediate outreach
+  warm_lead: 50                  # Score 50-74: personalised nurture
+  cold_lead: 25                  # Score 25-49: long-term nurture
+  disqualified: 0                # Score < 25 or disqualification criteria match
+
+# Disqualification overrides (disqualify regardless of score)
+disqualification:
+  personal_email_domains:
+    - gmail.com
+    - yahoo.com
+    - hotmail.com
+    - outlook.com
+    - icloud.com
+    - protonmail.com
+  apply_personal_email_rule: enterprise_only  # enterprise_only | all | disabled
+  competitor_domains:
+    - competitor-a.com
+    - competitor-b.com
+  blocked_roles:
+    - student
+    - intern
+    - academic
+  require_company: true          # Disqualify if no company provided
+
+# Team routing rules
+routing:
+  teams:
+    enterprise:
+      criteria:
+        min_employees: 500
+        min_revenue_estimate: "$50M"
+      default_action: immediate-call
+      sla_hours: 4
+    mid_market:
+      criteria:
+        min_employees: 50
+        max_employees: 499
+        min_revenue_estimate: "$5M"
+      default_action: personalised-email
+      sla_hours: 24
+    smb:
+      criteria:
+        max_employees: 49
+      default_action: nurture-sequence
+      sla_hours: 48
+
+  # Fallback when team can't be determined
+  default_team: mid_market
+  default_action: personalised-email
+
+# Lead ID format
+lead_id:
+  prefix: "LEAD"
+  year: true
+  sequence_digits: 5             # e.g. LEAD-2026-00001

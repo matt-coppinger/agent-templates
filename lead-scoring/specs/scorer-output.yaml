@@ -1,0 +1,172 @@
+# Scorer Sub-Agent Output Spec
+# Produces weighted scores across four dimensions
+
+schema:
+  lead_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  scores:
+    type: object
+    required: true
+    fields:
+      firmographic_fit:
+        type: object
+        required: true
+        fields:
+          score:
+            type: integer
+            min: 0
+            max: 30
+          breakdown:
+            type: list
+            items:
+              type: object
+              fields:
+                criterion: { type: string }
+                score: { type: integer }
+                rationale: { type: string }
+
+      behavioural_signals:
+        type: object
+        required: true
+        fields:
+          score:
+            type: integer
+            min: 0
+            max: 25
+          breakdown:
+            type: list
+            items:
+              type: object
+              fields:
+                criterion: { type: string }
+                score: { type: integer }
+                rationale: { type: string }
+
+      intent_signals:
+        type: object
+        required: true
+        fields:
+          score:
+            type: integer
+            min: 0
+            max: 25
+          breakdown:
+            type: list
+            items:
+              type: object
+              fields:
+                criterion: { type: string }
+                score: { type: integer }
+                rationale: { type: string }
+
+      timing_urgency:
+        type: object
+        required: true
+        fields:
+          score:
+            type: integer
+            min: 0
+            max: 20
+          breakdown:
+            type: list
+            items:
+              type: object
+              fields:
+                criterion: { type: string }
+                score: { type: integer }
+                rationale: { type: string }
+
+  total_score:
+    type: integer
+    required: true
+    min: 0
+    max: 100
+    description: Sum of all four dimension scores
+
+  data_gaps:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Sub-criteria where data was missing and midpoint was used
+
+  scoring_model_version:
+    type: string
+    required: true
+    description: Reference to the scoring model used
+
+# Example output
+example:
+  lead_id: "LEAD-2026-00001"
+  timestamp: "2026-02-14T16:45:05Z"
+  scores:
+    firmographic_fit:
+      score: 25
+      breakdown:
+        - criterion: "Company size match"
+          score: 8
+          rationale: "350 employees — mid-market to enterprise boundary. Strong fit for mid-market ICP, acceptable for enterprise."
+        - criterion: "Industry alignment"
+          score: 8
+          rationale: "Logistics & Supply Chain — target industry for both enterprise and mid-market ICP."
+        - criterion: "Revenue band"
+          score: 5
+          rationale: "Estimated $20M-$50M — strong mid-market range, acceptable enterprise."
+        - criterion: "Geography"
+          score: 4
+          rationale: "United Kingdom — primary market."
+
+    behavioural_signals:
+      score: 22
+      breakdown:
+        - criterion: "Source channel quality"
+          score: 10
+          rationale: "Demo request — highest-value source channel."
+        - criterion: "Engagement depth"
+          score: 5
+          rationale: "Single high-value action (demo request with detailed message)."
+        - criterion: "Content relevance"
+          score: 7
+          rationale: "Specifically interested in workflow automation and SAP integration — core product area."
+
+    intent_signals:
+      score: 23
+      breakdown:
+        - criterion: "Buying language"
+          score: 8
+          rationale: "'Evaluating platforms', 'shortlist three vendors', 'budget approved' — strong buying language."
+        - criterion: "Timeline indicators"
+          score: 6
+          rationale: "Shortlist by end of March, Q2 implementation — next-quarter timeline."
+        - criterion: "Pain point specificity"
+          score: 5
+          rationale: "Specific named problems: manual data entry, poor system handoffs, legacy replacement."
+        - criterion: "Decision authority"
+          score: 4
+          rationale: "VP of Operations with CTO sponsorship. Bringing Head of IT to demo. Multi-threaded."
+
+    timing_urgency:
+      score: 17
+      breakdown:
+        - criterion: "Stated timeline"
+          score: 6
+          rationale: "Demo 'this week or next', shortlist by end of March — near-term urgency."
+        - criterion: "Budget cycle alignment"
+          score: 5
+          rationale: "Budget explicitly approved for Q2."
+        - criterion: "Competitive pressure"
+          score: 3
+          rationale: "Evaluated Zapier and Make — actively comparing, but named competitors are entry-level."
+        - criterion: "Urgency language"
+          score: 3
+          rationale: "'If possible' on demo timing — keen but not desperate."
+
+  total_score: 87
+  data_gaps: []
+  scoring_model_version: "knowledge-base/scoring/scoring-model.md v1.0"

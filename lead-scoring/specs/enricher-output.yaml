@@ -1,0 +1,181 @@
+# Enricher Sub-Agent Output Spec
+# Produces structured enrichment of an inbound lead
+
+schema:
+  lead_id:
+    type: string
+    required: true
+    description: Unique identifier for the lead
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of enrichment
+
+  raw_data:
+    type: object
+    required: true
+    description: Original lead data as received
+    fields:
+      name: { type: string, required: true }
+      email: { type: string, required: true }
+      job_title: { type: string, required: false }
+      company: { type: string, required: false }
+      phone: { type: string, required: false }
+      source: { type: string, required: true }
+      message: { type: string, required: false }
+
+  firmographic:
+    type: object
+    required: true
+    fields:
+      company_name:
+        type: string
+        required: true
+      domain:
+        type: string
+        required: false
+      employee_count_estimate:
+        type: string
+        required: true
+        description: "Tier: 1-10, 11-50, 51-200, 201-500, 501-1000, 1001-5000, 5000+"
+      industry:
+        type: string
+        required: true
+      revenue_estimate:
+        type: string
+        required: false
+        description: "Annual revenue band (e.g. $10M-$50M)"
+      geography:
+        type: string
+        required: true
+        description: Primary country or region
+      tech_stack_signals:
+        type: list
+        required: false
+        items:
+          type: string
+        description: Inferred or stated technology in use
+
+  behavioural:
+    type: object
+    required: true
+    fields:
+      source_channel:
+        type: enum
+        required: true
+        values: [demo-request, referral, content-download, webinar, website-form, event, cold-inbound, unknown]
+      engagement_level:
+        type: enum
+        required: true
+        values: [high, medium, low]
+        description: "high: demo request or referral, medium: content/webinar, low: cold form"
+      content_interest:
+        type: list
+        required: false
+        items:
+          type: string
+
+  intent:
+    type: object
+    required: true
+    fields:
+      buying_signals:
+        type: list
+        required: true
+        items:
+          type: string
+        description: Specific phrases indicating purchase intent
+      timeline_indicators:
+        type: list
+        required: false
+        items:
+          type: string
+      pain_points:
+        type: list
+        required: false
+        items:
+          type: string
+      competitive_mentions:
+        type: list
+        required: false
+        items:
+          type: string
+      decision_authority:
+        type: enum
+        required: true
+        values: [executive, manager, individual-contributor, unknown]
+        description: Inferred decision-making authority level
+
+  disqualification_flags:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        criterion: { type: string, required: true }
+        evidence: { type: string, required: true }
+    description: Any disqualification criteria matched
+
+  disqualification_match:
+    type: boolean
+    required: true
+    description: Whether any hard disqualification criterion was matched
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Overall confidence in the enrichment
+
+# Example output
+example:
+  lead_id: "LEAD-2026-00001"
+  timestamp: "2026-02-14T16:45:00Z"
+  raw_data:
+    name: "James Hartley"
+    email: "j.hartley@meridian-logistics.co.uk"
+    job_title: "VP of Operations"
+    company: "Meridian Logistics Group"
+    phone: "+44 7700 900123"
+    source: "Website Demo Request Form"
+    message: "We're currently evaluating workflow automation platforms..."
+  firmographic:
+    company_name: "Meridian Logistics Group"
+    domain: "meridian-logistics.co.uk"
+    employee_count_estimate: "201-500"
+    industry: "Logistics & Supply Chain"
+    revenue_estimate: "$20M-$50M"
+    geography: "United Kingdom"
+    tech_stack_signals:
+      - "SAP (mentioned in message)"
+      - "Legacy warehouse management system"
+      - "Transport scheduling system"
+  behavioural:
+    source_channel: demo-request
+    engagement_level: high
+    content_interest:
+      - "Workflow automation"
+      - "System integration"
+      - "SAP connectivity"
+  intent:
+    buying_signals:
+      - "evaluating workflow automation platforms"
+      - "shortlist three vendors by end of March"
+      - "budget approved for Q2 implementation"
+    timeline_indicators:
+      - "shortlist by end of March"
+      - "Q2 implementation"
+      - "demo this week or next"
+    pain_points:
+      - "manual data entry consuming operations team time"
+      - "poor handoffs between warehouse and transport systems"
+      - "legacy systems need replacing"
+    competitive_mentions:
+      - "Zapier (evaluated, insufficient)"
+      - "Make (evaluated, insufficient)"
+    decision_authority: executive
+  disqualification_flags: []
+  disqualification_match: false
+  confidence: 0.92

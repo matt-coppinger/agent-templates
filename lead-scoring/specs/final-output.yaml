@@ -1,0 +1,80 @@
+# Final Pipeline Output Spec
+# The complete output after the full lead scoring pipeline
+
+schema:
+  lead_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      enriched: { type: datetime }
+      scored: { type: datetime }
+      qualified: { type: datetime }
+      routed: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  lead_summary:
+    type: object
+    required: true
+    fields:
+      name: { type: string }
+      email: { type: string }
+      company: { type: string }
+      job_title: { type: string }
+      source: { type: string }
+
+  scoring:
+    type: object
+    required: true
+    fields:
+      total_score: { type: integer, min: 0, max: 100 }
+      firmographic_fit: { type: integer, min: 0, max: 30 }
+      behavioural_signals: { type: integer, min: 0, max: 25 }
+      intent_signals: { type: integer, min: 0, max: 25 }
+      timing_urgency: { type: integer, min: 0, max: 20 }
+
+  qualification:
+    type: object
+    required: true
+    fields:
+      tier: { type: enum, values: [hot-lead, warm-lead, cold-lead, disqualified] }
+      mql: { type: boolean }
+      sql: { type: boolean }
+      rationale: { type: string }
+
+  routing:
+    type: object
+    required: true
+    fields:
+      team: { type: enum, values: [enterprise, mid-market, smb] }
+      action: { type: enum, values: [immediate-call, personalised-email, nurture-sequence, disqualify] }
+      priority: { type: integer, min: 1, max: 5 }
+      sla_hours: { type: integer }
+
+  risk_flags:
+    type: list
+    required: false
+    items:
+      type: string
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [enricher, scorer, qualifier, router] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking
