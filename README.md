@@ -15,6 +15,7 @@ Open source, production-ready agent templates for [Claude Code](https://code.cla
 |----------|-----------|--------|
 | [Customer Service](./customer-service/) | Classifier → Researcher → Drafter → Reviewer | ✅ Ready |
 | [Incident Triage](./incident-triage/) | Classifier → Investigator → Responder → Reviewer | ✅ Ready |
+| [Lead Scoring](./lead-scoring/) | Enricher → Scorer → Qualifier → Router | ✅ Ready |
 
 More coming soon: Code Review, RFP Drafting, Meeting Summaries, Security Log Analysis.
 
