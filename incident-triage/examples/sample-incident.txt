@@ -1,0 +1,35 @@
+INCIDENT REPORT
+Reported by: Datadog Alert (auto-generated)
+Time: 2026-02-15 14:18 UTC
+
+Alert: [P2] API Error Rate Critical - Primary Cluster
+
+Summary:
+API gateway primary cluster reporting elevated 5xx error rates. PagerDuty alert triggered at 14:18 UTC when 5xx rate exceeded 30% threshold.
+
+Metrics at time of alert:
+- 5xx error rate: 32% (threshold: 5%)
+- Normal 5xx rate: 0.1%
+- API latency p99: 8.5 seconds (normal: 200ms)
+- Request volume: ~11,500 req/sec (normal for this time: ~5,000 req/sec)
+- Active DB connections: 100/100 (pool limit)
+- Idle DB connections: 0
+
+Affected endpoints:
+- POST /api/v2/users/* (100% failure)
+- GET /api/v2/dashboard/* (intermittent)
+- GET /api/v2/reports/* (intermittent)
+- GET /api/v2/health (OK)
+
+Error logs (sample):
+[2026-02-15T14:17:23Z] ERROR api-gateway: Timeout acquiring connection from pool after 30000ms
+[2026-02-15T14:17:24Z] ERROR api-gateway: Timeout acquiring connection from pool after 30000ms
+[2026-02-15T14:17:25Z] ERROR api-gateway: Connection pool exhausted, 47 requests queued
+[2026-02-15T14:17:30Z] WARN postgres-primary: max_connections (100) reached, rejecting new connections
+[2026-02-15T14:18:01Z] ALERT pagerduty: P2 alert triggered - API Error Rate Critical
+
+Recent changes:
+- No deployments in last 24 hours
+- No database schema changes in last 7 days
+- No infrastructure changes in last 48 hours
+- Marketing campaign email sent to 500k users at 14:00 UTC today

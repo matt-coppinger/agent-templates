@@ -1,0 +1,202 @@
+# Investigator Sub-Agent Output Spec
+# Searches logs, runbooks, and past incidents to build context
+
+schema:
+  incident_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  timeline:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        time:
+          type: datetime
+          required: true
+        event:
+          type: string
+          required: true
+          description: What happened at this point
+        source:
+          type: string
+          required: true
+          description: Where this information came from
+        significance:
+          type: enum
+          values: [trigger, symptom, contributing, informational]
+    description: Chronological timeline of the incident
+
+  root_cause_hypotheses:
+    type: list
+    required: true
+    min_items: 1
+    max_items: 3
+    items:
+      type: object
+      fields:
+        hypothesis:
+          type: string
+          required: true
+          description: What might be causing the incident
+        confidence:
+          type: float
+          min: 0.0
+          max: 1.0
+        supporting_evidence:
+          type: list
+          items: { type: string }
+          description: Evidence supporting this hypothesis
+        contradicting_evidence:
+          type: list
+          items: { type: string }
+          required: false
+          description: Evidence against this hypothesis
+
+  runbook_matches:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        runbook:
+          type: string
+          required: true
+          description: Runbook title or path
+        path:
+          type: string
+          required: true
+          description: File path to the runbook
+        relevance_score:
+          type: float
+          min: 0.0
+          max: 1.0
+        applicable_steps:
+          type: list
+          items: { type: string }
+          description: Specific steps from the runbook that apply
+
+  similar_incidents:
+    type: list
+    required: false
+    max_items: 3
+    items:
+      type: object
+      fields:
+        incident_id: { type: string }
+        title: { type: string }
+        date: { type: datetime }
+        root_cause: { type: string }
+        resolution: { type: string }
+        similarity_score: { type: float, min: 0.0, max: 1.0 }
+
+  affected_components:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        component: { type: string }
+        role: { type: enum, values: [root-cause, affected, at-risk] }
+        evidence: { type: string }
+
+  log_findings:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        source: { type: string, description: "Log source (service name, file path)" }
+        finding: { type: string, description: "What the logs show" }
+        severity: { type: enum, values: [critical, warning, informational] }
+        sample: { type: string, required: false, description: "Relevant log excerpt (max 200 chars)" }
+
+  investigation_gaps:
+    type: list
+    required: false
+    items:
+      type: string
+    description: What information is missing that would help diagnose the issue
+
+  investigation_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+# Example output
+example:
+  incident_id: "INC-2026-00089"
+  timestamp: "2026-02-15T14:25:00Z"
+  timeline:
+    - time: "2026-02-15T14:00:00Z"
+      event: "Marketing campaign email blast sent to 500k users"
+      source: "knowledge-base/scheduled-events.md"
+      significance: trigger
+    - time: "2026-02-15T14:12:00Z"
+      event: "Traffic volume begins climbing, reaches 2x normal"
+      source: "CloudFront metrics"
+      significance: contributing
+    - time: "2026-02-15T14:15:00Z"
+      event: "DB connection pool hits 95/100 active connections"
+      source: "PostgreSQL metrics"
+      significance: symptom
+    - time: "2026-02-15T14:17:00Z"
+      event: "Connection pool exhausted, new requests queuing"
+      source: "PostgreSQL metrics"
+      significance: trigger
+    - time: "2026-02-15T14:18:00Z"
+      event: "5xx error rate crosses 30% threshold, PagerDuty alert fires"
+      source: "Datadog alert"
+      significance: symptom
+  root_cause_hypotheses:
+    - hypothesis: "Connection pool sized too small for traffic spike caused by marketing campaign"
+      confidence: 0.85
+      supporting_evidence:
+        - "Pool limit is 100, traffic was 2.3x normal"
+        - "Marketing email blast at 14:00 correlates with traffic ramp"
+        - "No code deployments in last 24h"
+      contradicting_evidence:
+        - "Pool has handled 1.5x spikes before without issue"
+    - hypothesis: "Slow queries holding connections open longer than normal"
+      confidence: 0.45
+      supporting_evidence:
+        - "p99 query latency increased before pool exhaustion"
+      contradicting_evidence:
+        - "No schema changes or new queries deployed recently"
+  runbook_matches:
+    - runbook: "Database Connection Pool Exhaustion"
+      path: "runbooks/database/connection-pool-exhaustion.md"
+      relevance_score: 0.96
+      applicable_steps:
+        - "Increase pool size via config change (no restart needed)"
+        - "Identify and kill long-running queries"
+        - "Enable connection pool monitoring dashboard"
+  similar_incidents: []
+  affected_components:
+    - component: "postgres-primary connection pool"
+      role: root-cause
+      evidence: "Pool at 100/100, all new connections rejected"
+    - component: "api-gateway primary cluster"
+      role: affected
+      evidence: "Cannot obtain DB connections, returning 5xx"
+    - component: "user-dashboard"
+      role: affected
+      evidence: "Depends on API gateway, intermittent failures"
+  log_findings:
+    - source: "api-gateway"
+      finding: "Connection acquisition timeout errors spiking"
+      severity: critical
+      sample: "ERROR: Timeout acquiring connection from pool after 30000ms"
+    - source: "postgres-primary"
+      finding: "Active connections at max, idle connections at 0"
+      severity: critical
+  investigation_gaps:
+    - "Need slow query log to confirm or rule out long-running queries"
+    - "Need to verify if connection pool was recently changed from a higher value"
+  investigation_confidence: 0.82

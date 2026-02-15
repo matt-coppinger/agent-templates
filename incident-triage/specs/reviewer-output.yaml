@@ -1,0 +1,136 @@
+# Reviewer Sub-Agent Output Spec
+# Validates the response plan before human review
+
+schema:
+  incident_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  verdict:
+    type: enum
+    required: true
+    values:
+      - pass              # Ready for human review
+      - revise            # Send back to responder with feedback
+      - escalate          # Needs senior engineer or incident commander
+    description: Overall quality verdict
+
+  quality_scores:
+    type: object
+    required: true
+    fields:
+      diagnosis_accuracy:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Does the RCA hypothesis match the evidence?
+      action_completeness:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Are all necessary actions covered? Correct priority order?
+      risk_assessment:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Are risks properly identified? Rollback plans adequate?
+      runbook_compliance:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Do actions follow established runbook procedures?
+      comms_quality:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Are internal/external comms accurate, clear, and appropriate?
+
+  overall_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+  issues:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        severity:
+          type: enum
+          values: [blocker, warning, suggestion]
+        category:
+          type: enum
+          values: [diagnosis, actions, risk, runbook, comms, timeline, scope]
+        description: { type: string }
+        location: { type: string }
+        fix_suggestion: { type: string }
+
+  risk_flags:
+    type: list
+    required: false
+    items:
+      type: enum
+      values:
+        - data-loss-risk          # Action could cause data loss
+        - service-disruption      # Action could worsen the outage
+        - security-implication    # Security concerns with proposed fix
+        - compliance-concern      # Regulatory or audit implications
+        - cascading-risk          # Fix could affect other systems
+        - untested-procedure      # No runbook or precedent for this action
+
+  missing_runbook_steps:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        runbook: { type: string }
+        missing_step: { type: string }
+        importance: { type: enum, values: [critical, recommended, optional] }
+
+  revision_notes:
+    type: string
+    required: false
+
+  human_review_summary:
+    type: string
+    required: true
+    description: 2-3 sentences for the incident commander to scan quickly
+
+# Example output
+example:
+  incident_id: "INC-2026-00089"
+  timestamp: "2026-02-15T14:30:00Z"
+  verdict: pass
+  quality_scores:
+    diagnosis_accuracy: 0.88
+    action_completeness: 0.92
+    risk_assessment: 0.90
+    runbook_compliance: 0.95
+    comms_quality: 0.85
+  overall_confidence: 0.90
+  issues:
+    - severity: suggestion
+      category: comms
+      description: "Customer update doesn't mention ETA. Customers prefer knowing when to expect resolution."
+      location: comms_draft.customer_update
+      fix_suggestion: "Add: 'We expect full service to be restored within 30 minutes.'"
+    - severity: warning
+      category: scope
+      description: "No action item to verify the fix worked after pool resize. Add a verification step."
+      location: recommended_actions
+      fix_suggestion: "Add priority 2.5 action: 'Verify 5xx rate drops below 1% within 5 minutes of pool resize'"
+  risk_flags: []
+  missing_runbook_steps:
+    - runbook: "runbooks/database/connection-pool-exhaustion.md"
+      missing_step: "Post-mitigation: verify connection count stabilises below 80% of new limit"
+      importance: recommended
+  revision_notes: null
+  human_review_summary: |
+    Solid response plan. RCA correctly identifies connection pool exhaustion from marketing-driven traffic spike, with strong evidence correlation. Primary mitigation (pool resize) is low-risk with clear rollback. Two items for attention: add a post-fix verification step, and include an ETA in the customer-facing update.

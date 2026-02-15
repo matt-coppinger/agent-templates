@@ -1,0 +1,86 @@
+# Final Pipeline Output Spec
+# Complete incident response after human review and approval
+
+schema:
+  incident_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      reported: { type: datetime }
+      classified: { type: datetime }
+      investigated: { type: datetime }
+      response_planned: { type: datetime }
+      reviewed: { type: datetime }
+      approved: { type: datetime }
+      total_seconds: { type: float }
+
+  classification:
+    type: object
+    required: true
+    fields:
+      severity: { type: string }
+      category: { type: string }
+      title: { type: string }
+      customer_impact: { type: string }
+
+  rca_hypothesis:
+    type: object
+    required: true
+    fields:
+      primary_cause: { type: string }
+      confidence: { type: float }
+      category: { type: string }
+
+  approved_actions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        priority: { type: integer }
+        action: { type: string }
+        type: { type: string }
+        owner: { type: string }
+        approved_by: { type: string }
+
+  comms_sent:
+    type: object
+    required: true
+    fields:
+      internal_update: { type: string }
+      customer_update: { type: string, required: false }
+      executive_summary: { type: string, required: false }
+      was_edited: { type: boolean }
+
+  human_decision:
+    type: enum
+    required: true
+    values: [approved, modified, escalated, rejected]
+
+  quality:
+    type: object
+    required: true
+    fields:
+      reviewer_confidence: { type: float }
+      issues_found: { type: integer }
+      risk_flags: { type: list, items: { type: string } }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [classifier, investigator, responder, reviewer, human] }
+        output_file: { type: string }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float }

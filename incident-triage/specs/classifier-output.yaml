@@ -1,0 +1,157 @@
+# Incident Classifier Output Spec
+# Produces structured triage of an incoming incident
+
+schema:
+  incident_id:
+    type: string
+    required: true
+    description: Unique identifier for the incident
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of classification
+
+  severity:
+    type: enum
+    required: true
+    values: [P1, P2, P3, P4]
+    description: |
+      P1: Complete service outage or data loss, all users affected
+      P2: Major degradation, significant user impact, workaround may exist
+      P3: Minor issue, limited user impact, workaround available
+      P4: Cosmetic or low-impact, no immediate action needed
+
+  category:
+    type: enum
+    required: true
+    values:
+      - infrastructure        # Server, network, DNS, load balancer
+      - application           # App crashes, errors, performance
+      - database              # DB outage, replication, corruption
+      - security              # Breach, vulnerability, unauthorised access
+      - deployment            # Failed deploy, rollback needed
+      - third-party           # External dependency failure
+      - capacity              # Resource exhaustion (CPU, memory, disk, connections)
+      - data                  # Data integrity, migration, sync issues
+
+  subcategory:
+    type: string
+    required: false
+    description: Specific issue type within the category
+
+  title:
+    type: string
+    required: true
+    description: One-line incident title (max 100 chars)
+
+  summary:
+    type: string
+    required: true
+    description: 2-3 sentence plain-language description of the incident
+
+  affected_systems:
+    type: list
+    required: true
+    min_items: 1
+    items:
+      type: object
+      fields:
+        system: { type: string, description: "System or service name" }
+        component: { type: string, required: false, description: "Specific component if known" }
+        status: { type: enum, values: [down, degraded, intermittent, at-risk] }
+
+  customer_impact:
+    type: object
+    required: true
+    fields:
+      affected:
+        type: boolean
+        description: Are customers affected?
+      scope:
+        type: enum
+        values: [none, subset, majority, all]
+        description: Proportion of customers affected
+      description:
+        type: string
+        description: Plain-language impact statement
+
+  detection_method:
+    type: enum
+    required: true
+    values:
+      - monitoring-alert       # Automated monitoring triggered
+      - customer-report        # Customer reported the issue
+      - internal-report        # Engineer or team noticed
+      - deployment-failure     # CI/CD pipeline flagged
+      - security-scan          # Security tooling detected
+      - log-anomaly            # Log analysis flagged
+
+  key_indicators:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        indicator: { type: string, description: "What was observed" }
+        source: { type: string, description: "Where it was observed (log, metric, alert)" }
+        timestamp: { type: datetime, required: false }
+    description: Key symptoms and signals from the incident report
+
+  escalation_flags:
+    type: list
+    required: false
+    items:
+      type: enum
+      values:
+        - data-breach           # Potential data exposure
+        - sla-breach            # SLA threshold at risk
+        - revenue-impact        # Direct revenue loss
+        - regulatory            # Compliance implications
+        - cascading-failure     # Risk of spreading to other systems
+        - repeat-incident       # Similar incident occurred recently
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+# Example output
+example:
+  incident_id: "INC-2026-00089"
+  timestamp: "2026-02-15T14:23:00Z"
+  severity: P2
+  category: database
+  subcategory: connection-pool-exhaustion
+  title: "Database connection pool exhausted on primary API cluster"
+  summary: "Primary API cluster reporting elevated 5xx errors due to database connection pool exhaustion. Approximately 30% of API requests failing. Issue began at 14:15 UTC following a traffic spike."
+  affected_systems:
+    - system: "api-gateway"
+      component: "primary-cluster"
+      status: degraded
+    - system: "postgres-primary"
+      component: "connection-pool"
+      status: degraded
+    - system: "user-dashboard"
+      status: intermittent
+  customer_impact:
+    affected: true
+    scope: subset
+    description: "~30% of users experiencing intermittent errors when accessing the dashboard and API. Mobile app partially affected."
+  detection_method: monitoring-alert
+  key_indicators:
+    - indicator: "5xx error rate spiked from 0.1% to 32%"
+      source: "Datadog APM"
+      timestamp: "2026-02-15T14:15:00Z"
+    - indicator: "Active DB connections at 100/100 (pool limit)"
+      source: "PostgreSQL metrics"
+      timestamp: "2026-02-15T14:17:00Z"
+    - indicator: "Request latency p99 jumped from 200ms to 8.5s"
+      source: "Datadog APM"
+    - indicator: "Traffic volume 2.3x normal for this time slot"
+      source: "CloudFront metrics"
+  escalation_flags:
+    - sla-breach
+    - revenue-impact
+  confidence: 0.91

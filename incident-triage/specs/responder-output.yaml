@@ -1,0 +1,210 @@
+# Responder Sub-Agent Output Spec
+# Produces recommended actions, RCA hypothesis, and comms draft
+
+schema:
+  incident_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  recommended_actions:
+    type: list
+    required: true
+    min_items: 1
+    max_items: 10
+    items:
+      type: object
+      fields:
+        priority:
+          type: integer
+          required: true
+          description: Execution order (1 = do first)
+        action:
+          type: string
+          required: true
+          description: Specific action to take
+        type:
+          type: enum
+          required: true
+          values:
+            - immediate-mitigation    # Stop the bleeding now
+            - investigation           # Gather more data
+            - remediation             # Fix the root cause
+            - prevention              # Prevent recurrence
+            - communication           # Notify stakeholders
+        owner:
+          type: string
+          required: true
+          description: Team or role responsible
+        estimated_time:
+          type: string
+          required: false
+          description: How long this action should take
+        requires_approval:
+          type: boolean
+          required: true
+        risk:
+          type: enum
+          required: true
+          values: [low, medium, high]
+          description: Risk level of performing this action
+        risk_notes:
+          type: string
+          required: false
+          description: What could go wrong if this action is taken
+        rollback:
+          type: string
+          required: false
+          description: How to undo this action if it makes things worse
+
+  rca_hypothesis:
+    type: object
+    required: true
+    fields:
+      primary_cause:
+        type: string
+        required: true
+        description: Most likely root cause
+      confidence:
+        type: float
+        min: 0.0
+        max: 1.0
+      contributing_factors:
+        type: list
+        items: { type: string }
+      category:
+        type: enum
+        values: [human-error, software-bug, infrastructure, capacity, configuration, external, unknown]
+      prevention_recommendation:
+        type: string
+        description: What should change to prevent recurrence
+
+  comms_draft:
+    type: object
+    required: true
+    fields:
+      internal_update:
+        type: string
+        required: true
+        description: Slack/Teams message for engineering team (max 300 words)
+      customer_update:
+        type: string
+        required: false
+        description: Status page or customer-facing update (max 150 words)
+      executive_summary:
+        type: string
+        required: false
+        description: One-paragraph summary for leadership (max 100 words)
+
+  estimated_resolution:
+    type: object
+    required: true
+    fields:
+      eta:
+        type: string
+        description: Estimated time to resolution
+      confidence:
+        type: float
+        min: 0.0
+        max: 1.0
+      assumptions:
+        type: list
+        items: { type: string }
+        description: What this estimate depends on
+
+  citations:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        claim: { type: string }
+        source: { type: string }
+
+# Example output
+example:
+  incident_id: "INC-2026-00089"
+  timestamp: "2026-02-15T14:28:00Z"
+  recommended_actions:
+    - priority: 1
+      action: "Increase PostgreSQL connection pool max_connections from 100 to 200 via config reload"
+      type: immediate-mitigation
+      owner: "DBA / Platform team"
+      estimated_time: "5 minutes"
+      requires_approval: true
+      risk: low
+      risk_notes: "Config reload is non-disruptive. PostgreSQL handles dynamic pool resizing."
+      rollback: "Reduce max_connections back to 100 via config reload"
+    - priority: 2
+      action: "Kill any long-running queries holding connections (if found)"
+      type: immediate-mitigation
+      owner: "DBA"
+      estimated_time: "10 minutes"
+      requires_approval: true
+      risk: medium
+      risk_notes: "Killing queries may cause data inconsistency if mid-transaction"
+      rollback: "Re-run affected queries manually"
+    - priority: 3
+      action: "Enable connection pool monitoring dashboard and set alert at 80% utilisation"
+      type: prevention
+      owner: "Platform team"
+      estimated_time: "30 minutes"
+      requires_approval: false
+      risk: low
+    - priority: 4
+      action: "Review and implement connection pool auto-scaling based on traffic patterns"
+      type: prevention
+      owner: "Platform team"
+      estimated_time: "1-2 days"
+      requires_approval: false
+      risk: low
+      risk_notes: "Requires load testing to validate auto-scaling thresholds"
+    - priority: 5
+      action: "Coordinate with Marketing on future campaign scheduling to pre-scale resources"
+      type: prevention
+      owner: "Engineering lead + Marketing"
+      estimated_time: "Ongoing process"
+      requires_approval: false
+      risk: low
+  rca_hypothesis:
+    primary_cause: "Database connection pool sized for normal traffic (100 connections) was insufficient for 2.3x traffic spike triggered by marketing email campaign"
+    confidence: 0.85
+    contributing_factors:
+      - "No advance notice from Marketing about the campaign timing"
+      - "No auto-scaling configured for connection pool"
+      - "No alert threshold set below pool exhaustion"
+    category: capacity
+    prevention_recommendation: "Implement connection pool auto-scaling and establish cross-team notification process for campaigns expected to drive significant traffic"
+  comms_draft:
+    internal_update: |
+      🔴 INC-2026-00089 — DB Connection Pool Exhaustion (P2)
+
+      **Status:** Investigating, mitigation in progress
+      **Impact:** ~30% of API requests failing, dashboard intermittent
+      **Cause:** Connection pool (100 max) exhausted after 2.3x traffic spike from marketing campaign at 14:00
+
+      **Actions:**
+      1. Increasing pool size to 200 (pending approval)
+      2. Checking for long-running queries
+      3. Setting up pool utilisation alerts
+
+      **ETA:** 15-30 minutes once pool resize approved
+      **Lead:** @platform-team
+    customer_update: |
+      We're currently experiencing intermittent errors affecting some users. Our team has identified the cause and is implementing a fix. We expect full resolution within 30 minutes. We apologise for the inconvenience.
+    executive_summary: "Database connection pool exhausted due to 2.3x traffic spike from marketing campaign. ~30% of users affected with intermittent errors. Fix is a pool size increase (low risk, 5 min). Adding auto-scaling and cross-team campaign notifications to prevent recurrence."
+  estimated_resolution:
+    eta: "15-30 minutes"
+    confidence: 0.80
+    assumptions:
+      - "Pool resize resolves the connection exhaustion"
+      - "No underlying slow query issue complicating recovery"
+      - "Approval for pool resize obtained quickly"
+  citations:
+    - claim: "Increase max_connections via config reload without restart"
+      source: "runbooks/database/connection-pool-exhaustion.md"
+    - claim: "Traffic spike correlates with marketing campaign"
+      source: "Investigation timeline"

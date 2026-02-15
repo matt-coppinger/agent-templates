@@ -1,0 +1,39 @@
+# Incident Triage & Response Pipeline Configuration
+
+pipeline:
+  name: incident-triage
+  version: "1.0"
+  description: Multi-agent incident triage with investigation, response planning, and human review
+
+# Model recommendations per sub-agent
+models:
+  classifier: haiku          # Fast severity classification
+  investigator: sonnet       # Deep analysis of logs and runbooks
+  responder: sonnet          # Action planning and RCA drafting
+  reviewer: sonnet           # Risk assessment and validation
+
+# Severity escalation
+escalation:
+  auto_escalate_severity: P1           # Skip pipeline, go straight to human + page on-call
+  min_confidence_to_respond: 0.6       # Below this, escalate to senior engineer
+  max_investigation_depth: 3           # Max rounds of log/runbook searching
+
+# Response settings
+response:
+  include_rca_hypothesis: true         # Include root cause analysis in response
+  include_timeline: true               # Build incident timeline
+  include_similar_incidents: true      # Reference past incidents
+  max_recommended_actions: 10          # Cap on action items
+
+# Communication
+comms:
+  language: en-GB
+  audience: technical                  # technical | mixed | executive
+  include_customer_impact: true        # Assess customer-facing impact
+  include_internal_comms_draft: true   # Draft Slack/Teams update for stakeholders
+
+# Knowledge sources
+knowledge_base:
+  runbooks_path: ./runbooks/           # Operational runbooks
+  knowledge_path: ./knowledge-base/    # Architecture docs, past incidents, SLAs
+  log_samples_path: ./examples/        # Sample log data for investigation
