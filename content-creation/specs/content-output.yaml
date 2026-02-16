@@ -1,0 +1,82 @@
+# Content Writer Output Spec
+# Produces the drafted content piece
+
+schema:
+  brief_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  revision_round:
+    type: integer
+    required: true
+    description: "0 for initial draft, 1–2 for revisions"
+
+  platform:
+    type: enum
+    required: true
+    values: [blog, linkedin, twitter, email]
+
+  content:
+    type: object
+    required: true
+    fields:
+      title: { type: string, description: "Headline or subject line" }
+      meta_description: { type: string, required: false, description: "SEO meta description (blog only)" }
+      preview_text: { type: string, required: false, description: "Email preview text (email only)" }
+      body: { type: string, description: "Full content in markdown format" }
+      cta_text: { type: string, required: false, description: "Call to action text" }
+      hashtags: { type: list, items: { type: string }, required: false, description: "Social media hashtags" }
+
+  metrics:
+    type: object
+    required: true
+    fields:
+      word_count: { type: integer }
+      word_count_target: { type: integer }
+      primary_keyword_count: { type: integer }
+      keyword_density_percent: { type: float }
+      estimated_reading_time_minutes: { type: float }
+
+  seo_keywords_used:
+    type: object
+    required: true
+    fields:
+      primary: { type: list, items: { type: string } }
+      secondary: { type: list, items: { type: string } }
+
+  revision_changes:
+    type: list
+    required: false
+    items: { type: string }
+    description: "Summary of changes made in this revision (empty for initial draft)"
+
+  writer_notes:
+    type: string
+    required: false
+    description: "Any notes for the editor about creative decisions"
+
+example:
+  brief_id: "BRF-2026-00042"
+  timestamp: "2026-02-15T10:15:00Z"
+  revision_round: 0
+  platform: blog
+  content:
+    title: "The Hidden Cost of Inconsistent Content: Why Workflows Matter"
+    meta_description: "Discover how structured content workflows help B2B teams produce 3x more content while maintaining brand consistency. Practical steps inside."
+    body: "## Introduction\n\nYour marketing team is stretched thin..."
+    cta_text: "Download our content pipeline template"
+  metrics:
+    word_count: 1180
+    word_count_target: 1200
+    primary_keyword_count: 8
+    keyword_density_percent: 1.4
+    estimated_reading_time_minutes: 5.5
+  seo_keywords_used:
+    primary: ["AI content creation"]
+    secondary: ["content marketing ROI", "content pipeline", "brand consistency"]
+  revision_changes: []
+  writer_notes: "Chose the 'hidden cost' angle per research recommendation"

@@ -1,0 +1,127 @@
+# Root Cause Analyser Sub-Agent Output Spec
+# Produces root cause hypotheses using structured RCA frameworks
+
+schema:
+  analysis_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  five_whys_analyses:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        target_defect: { type: string, description: "The defect pattern being analysed" }
+        problem_statement: { type: string }
+        whys:
+          type: list
+          items:
+            type: object
+            fields:
+              level: { type: integer }
+              question: { type: string }
+              answer: { type: string }
+              evidence: { type: string, description: "Data supporting this answer" }
+        root_cause: { type: string }
+        confidence: { type: enum, values: [high, medium, low] }
+
+  ishikawa_analyses:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        target_defect: { type: string }
+        causes:
+          type: object
+          fields:
+            man:
+              type: list
+              items: { type: string }
+            machine:
+              type: list
+              items: { type: string }
+            material:
+              type: list
+              items: { type: string }
+            method:
+              type: list
+              items: { type: string }
+            measurement:
+              type: list
+              items: { type: string }
+            environment:
+              type: list
+              items: { type: string }
+        primary_category: { type: enum, values: [man, machine, material, method, measurement, environment] }
+
+  hypotheses:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        hypothesis_id: { type: string }
+        statement: { type: string }
+        target_defect: { type: string }
+        ishikawa_category: { type: enum, values: [man, machine, material, method, measurement, environment] }
+        supporting_evidence: { type: list, items: { type: string } }
+        contradicting_evidence: { type: list, items: { type: string } }
+        confidence: { type: float, min: 0.0, max: 1.0 }
+        verification_steps: { type: list, items: { type: string } }
+
+  investigation_priorities:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        rank: { type: integer }
+        hypothesis_id: { type: string }
+        severity_score: { type: float }
+        confidence_score: { type: float }
+        frequency_score: { type: float }
+        detectability_score: { type: float }
+        overall_priority: { type: enum, values: [critical, high, medium, low] }
+        recommended_action: { type: string }
+
+example:
+  analysis_id: "QA-2026-00042"
+  timestamp: "2026-02-15T10:10:00Z"
+  five_whys_analyses:
+    - target_defect: "Dimensional out-of-tolerance on Line B"
+      problem_statement: "Bore diameters on Line B are consistently above upper specification limit"
+      whys:
+        - level: 1
+          question: "Why are bore diameters out of tolerance?"
+          answer: "CNC Mill Station 3 is cutting oversized"
+          evidence: "12 of 18 dimensional defects traced to Station 3"
+        - level: 2
+          question: "Why is Station 3 cutting oversized?"
+          answer: "Tool wear exceeding expected rate"
+          evidence: "Tool replacement logs show 30% shorter tool life than baseline"
+        - level: 3
+          question: "Why is tool wear accelerated?"
+          answer: "Material hardness from current supplier batch is above specification"
+          evidence: "Correlation with supplier Acme Materials batch B-2026-0089"
+      root_cause: "Incoming material hardness not verified against specification before production"
+      confidence: medium
+  hypotheses:
+    - hypothesis_id: "HYP-001"
+      statement: "Incoming material from Acme Materials has elevated hardness causing accelerated tool wear"
+      target_defect: "Dimensional out-of-tolerance"
+      ishikawa_category: material
+      supporting_evidence:
+        - "72% correlation between supplier batch and defect rate"
+        - "Tool wear 30% above baseline during affected period"
+      contradicting_evidence:
+        - "Only 2 of 5 Acme batches affected — inconsistent if systemic supplier issue"
+      confidence: 0.65
+      verification_steps:
+        - "Test hardness of remaining Acme batch B-2026-0089 material"
+        - "Compare with material certificates provided by supplier"

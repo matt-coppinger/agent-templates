@@ -1,0 +1,85 @@
+# Risk Assessor Sub-Agent Output Spec
+# Produces risk ratings and deviation analysis for each extracted clause
+
+schema:
+  review_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  clause_assessments:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        clause_category: { type: string }
+        clause_number: { type: string }
+        risk_level: { type: enum, values: [high, medium, low] }
+        risk_score: { type: float, min: 0.0, max: 1.0 }
+        deviation_from_standard: { type: string, description: "How the clause differs from playbook" }
+        playbook_standard: { type: string, description: "What the playbook recommends" }
+        concerns: { type: list, items: { type: string } }
+        is_red_flag: { type: boolean }
+        escalation_required: { type: boolean }
+        red_flag_reason: { type: string, required: false }
+
+  missing_clause_assessments:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        missing_clause: { type: string }
+        risk_level: { type: enum, values: [high, medium, low] }
+        recommendation: { type: string }
+        standard_language: { type: string, description: "Suggested language from playbook" }
+
+  overall_risk_summary:
+    type: object
+    required: true
+    fields:
+      overall_risk: { type: enum, values: [high, medium, low] }
+      high_risk_count: { type: integer }
+      medium_risk_count: { type: integer }
+      low_risk_count: { type: integer }
+      missing_clause_count: { type: integer }
+      red_flag_count: { type: integer }
+      summary_narrative: { type: string, description: "2-3 sentence overall assessment" }
+
+  disclaimer:
+    type: string
+    required: true
+
+# Example output
+example:
+  review_id: "REV-2026-00042"
+  timestamp: "2026-02-15T10:05:00Z"
+  clause_assessments:
+    - clause_category: liability
+      clause_number: "12.1"
+      risk_level: medium
+      risk_score: 0.6
+      deviation_from_standard: "Cap is 12 months' charges; playbook recommends minimum 150% of annual charges"
+      playbook_standard: "Liability cap of 150% of annual contract value"
+      concerns:
+        - "Cap may be insufficient for high-value engagements"
+      is_red_flag: false
+      escalation_required: false
+  missing_clause_assessments:
+    - missing_clause: insurance
+      risk_level: medium
+      recommendation: "Request inclusion of professional indemnity insurance requirement"
+      standard_language: "The Supplier shall maintain professional indemnity insurance of not less than £2,000,000 per claim."
+  overall_risk_summary:
+    overall_risk: medium
+    high_risk_count: 1
+    medium_risk_count: 3
+    low_risk_count: 10
+    missing_clause_count: 2
+    red_flag_count: 0
+    summary_narrative: "The contract is broadly standard but contains a below-market liability cap and lacks insurance provisions. One high-risk clause relates to unlimited indemnity for IP infringement."
+  disclaimer: "This assessment does not constitute legal advice"

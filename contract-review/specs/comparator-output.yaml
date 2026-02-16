@@ -1,0 +1,82 @@
+# Comparator Sub-Agent Output Spec
+# Produces comparison of contract clauses against standard templates
+
+schema:
+  review_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  templates_used:
+    type: list
+    required: true
+    items:
+      type: string
+    description: Names/paths of templates used for comparison
+
+  clause_comparisons:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        clause_category: { type: string }
+        clause_number: { type: string }
+        template_used: { type: string }
+        material_difference: { type: boolean }
+        difference_summary: { type: string }
+        contract_position: { type: string, description: "What the reviewed contract says" }
+        standard_position: { type: string, description: "What the template says" }
+        favours: { type: enum, values: [counterparty, our_side, neutral, unclear] }
+
+  negotiation_leverage:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        clause_category: { type: string }
+        leverage_type: { type: enum, values: [strong, moderate, weak] }
+        talking_point: { type: string }
+        fallback_position: { type: string }
+
+  template_gaps:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        clause_category: { type: string }
+        present_in_template: { type: boolean }
+        present_in_contract: { type: boolean }
+        recommendation: { type: string }
+
+  disclaimer:
+    type: string
+    required: true
+
+# Example output
+example:
+  review_id: "REV-2026-00042"
+  timestamp: "2026-02-15T10:10:00Z"
+  templates_used:
+    - "knowledge-base/templates/standard-nda.md"
+  clause_comparisons:
+    - clause_category: confidentiality
+      clause_number: "8.1"
+      template_used: "standard-nda.md"
+      material_difference: true
+      difference_summary: "Contract uses a 5-year confidentiality period vs standard 3-year"
+      contract_position: "Obligations survive for 5 years after termination"
+      standard_position: "Obligations survive for 3 years after termination"
+      favours: counterparty
+  negotiation_leverage:
+    - clause_category: confidentiality
+      leverage_type: moderate
+      talking_point: "Industry standard confidentiality period is 3 years; 5 years is unusually long for this type of engagement"
+      fallback_position: "Accept 4 years as a compromise"
+  template_gaps: []
+  disclaimer: "This comparison does not constitute legal advice"

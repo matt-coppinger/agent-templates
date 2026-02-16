@@ -1,0 +1,146 @@
+# Narrative Writer Sub-Agent Output Spec
+# Produces plain-English management commentary from financial analysis
+
+schema:
+  report_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  report_type:
+    type: enum
+    required: true
+    values: [monthly-variance, quarterly-forecast, annual-budget-review]
+
+  executive_summary:
+    type: string
+    required: true
+    description: |
+      2-3 sentences. The headline finding a CFO reads in 10 seconds.
+      Must include: overall performance vs plan, key number, outlook.
+
+  variance_commentary:
+    type: list
+    required: true
+    description: One entry per material variance, ordered by impact
+    items:
+      type: object
+      fields:
+        line_item: { type: string }
+        rag_status: { type: enum, values: [amber, red] }
+        headline:
+          type: string
+          description: "One-line summary, e.g. 'Revenue £50k (4.2%) above budget'"
+        explanation:
+          type: string
+          description: "Plain-English driver analysis — why did this happen?"
+        impact:
+          type: string
+          description: "Knock-on effect on bottom line or other KPIs"
+        recommended_action:
+          type: string
+          description: "What management should do about it"
+
+  forecast_commentary:
+    type: object
+    required: false
+    description: Only included for quarterly-forecast and annual-budget-review
+    fields:
+      outlook_summary:
+        type: string
+        description: "Plain-English base case outlook"
+      scenario_range:
+        type: string
+        description: "The spread between best and worst case, in plain English"
+      key_assumptions:
+        type: string
+        description: "What the forecast depends on, explained simply"
+      confidence_assessment:
+        type: string
+        description: "How reliable is this forecast and why"
+
+  risks:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        description: { type: string }
+        likelihood: { type: enum, values: [high, medium, low] }
+        potential_impact: { type: string }
+        recommended_response: { type: string }
+
+  opportunities:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        description: { type: string }
+        likelihood: { type: enum, values: [high, medium, low] }
+        potential_impact: { type: string }
+        recommended_action: { type: string }
+
+  recommended_actions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        priority: { type: integer, min: 1, description: "1 = highest priority" }
+        action: { type: string }
+        rationale: { type: string }
+        owner: { type: string, required: false, description: "Suggested owner (e.g. 'Finance Director', 'Head of Sales')" }
+        deadline: { type: string, required: false }
+
+  data_caveats:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Limitations, data quality warnings, areas needing investigation
+
+  word_count:
+    type: integer
+    required: true
+    description: Total word count of all narrative sections (must be within config limit)
+
+example:
+  report_id: "RPT-2026-01"
+  timestamp: "2026-02-15T10:00:30Z"
+  report_type: monthly-variance
+  executive_summary: |
+    January 2026 performance was broadly in line with budget, with revenue £50k (4.2%)
+    ahead of plan driven by strong product sales. However, operating expenses were £75k
+    (12.5%) over budget due to accelerated hiring, partially offsetting the top-line gain.
+    EBITDA landed at £341k, £25k below budget.
+  variance_commentary:
+    - line_item: operating_expenses
+      rag_status: amber
+      headline: "OPEX £75k (12.5%) above budget"
+      explanation: |
+        The overspend was driven by three factors: £45k from new engineering hires
+        brought forward from Q2, £20k from the new CRM platform licence, and £10k
+        from miscellaneous departmental increases.
+      impact: "Reduced EBITDA by £75k vs budget; partially offset by revenue outperformance."
+      recommended_action: "Review hiring timeline against budget phasing. Confirm CRM licence was an approved but unbudgeted commitment."
+  risks:
+    - description: "OPEX run-rate is now above budget — if hiring continues at pace, full-year OPEX could exceed budget by £500k+"
+      likelihood: medium
+      potential_impact: "£500k annual EBITDA impact"
+      recommended_response: "Reforecast OPEX with updated hiring plan and present to board"
+  opportunities:
+    - description: "Revenue growth accelerating — January YoY growth of 13.6% suggests underlying demand is strong"
+      likelihood: high
+      potential_impact: "Could deliver £600k+ above annual revenue budget"
+      recommended_action: "Assess whether sales capacity can capture the demand — consider bringing forward sales hiring"
+  recommended_actions:
+    - priority: 1
+      action: "Reforecast full-year OPEX incorporating confirmed new hires and CRM commitment"
+      rationale: "Budget is already £75k behind in month 1; full-year impact needs quantifying"
+      owner: "Finance Director"
+      deadline: "End of February 2026"
+  word_count: 287

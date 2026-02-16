@@ -1,0 +1,106 @@
+# Sentiment Routing Pipeline Configuration
+
+pipeline:
+  name: sentiment-routing
+  version: "1.0"
+  description: Multi-agent sentiment analysis and escalation routing for customer service
+
+# Model assignments per sub-agent
+models:
+  emotion-detector: claude-haiku     # Fast emotion detection
+  context-assessor: claude-haiku     # Fast context lookup
+  priority-scorer: claude-sonnet     # Nuanced priority calculation
+  router: claude-sonnet              # Complex routing logic
+
+# Priority definitions (P1 = most urgent)
+priorities:
+  P1:
+    label: Critical
+    description: Safety/legal threat, service outage, VIP with high anger
+    sla_minutes: 15
+    auto_escalate: true
+  P2:
+    label: High
+    description: Angry/frustrated customer, churn risk, repeat contact
+    sla_minutes: 60
+    auto_escalate: false
+  P3:
+    label: Medium
+    description: Negative sentiment, standard issue, moderate urgency
+    sla_minutes: 240
+    auto_escalate: false
+  P4:
+    label: Low
+    description: Neutral/positive sentiment, general inquiry
+    sla_minutes: 1440
+    auto_escalate: false
+
+# Priority scoring thresholds
+scoring:
+  anger_weight: 0.3              # Weight of anger/frustration in score
+  urgency_weight: 0.25           # Weight of detected urgency
+  churn_risk_weight: 0.2         # Weight of churn risk signals
+  account_value_weight: 0.15     # Weight of account value tier
+  repeat_contact_weight: 0.1     # Weight of repeat contact frequency
+  vip_boost: 1                   # Priority levels to boost for VIP customers (P3 → P2)
+  p1_triggers:                   # Any of these force P1 regardless of score
+    - safety_threat
+    - legal_threat
+    - regulatory_complaint
+
+# Team routing rules
+teams:
+  billing:
+    handles: [billing-dispute, payment-issue, refund-request, subscription-change]
+    escalation_team: billing-senior
+    capacity: medium
+  technical:
+    handles: [bug-report, service-outage, integration-issue, performance]
+    escalation_team: engineering
+    capacity: medium
+  retention:
+    handles: [cancellation, churn-risk, competitor-mention, downgrade]
+    escalation_team: retention-senior
+    capacity: low
+  general:
+    handles: [general-inquiry, feedback, feature-request, account-management]
+    escalation_team: team-lead
+    capacity: high
+  safety:
+    handles: [safety-threat, legal-threat, regulatory-complaint]
+    escalation_team: legal
+    capacity: low
+
+# SLA targets (in minutes)
+sla:
+  first_response:
+    P1: 15
+    P2: 60
+    P3: 240
+    P4: 1440
+  resolution:
+    P1: 60
+    P2: 480
+    P3: 1440
+    P4: 4320
+
+# VIP detection
+vip:
+  account_value_threshold: 10000   # Annual value in GBP
+  tenure_years_threshold: 3        # Years as customer
+  enterprise_flag: true             # Enterprise accounts always VIP
+
+# Churn risk signals
+churn_signals:
+  keywords:
+    - cancelling
+    - cancel
+    - switching
+    - leaving
+    - competitor
+    - alternative
+    - fed up
+    - last straw
+    - enough is enough
+  repeat_contact_threshold: 3      # Contacts in 30 days triggers churn flag
+  unresolved_ticket_threshold: 2   # Open tickets triggers churn flag

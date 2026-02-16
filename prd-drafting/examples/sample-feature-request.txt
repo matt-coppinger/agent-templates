@@ -1,0 +1,35 @@
+From: Sarah Chen (Product Manager)
+To: Engineering Team
+Subject: Bulk report export — customer request
+
+Hey team,
+
+We've had several enterprise customers asking for the ability to download multiple reports at once from the reporting dashboard. Right now they have to click into each report individually and export one at a time, which is a real pain when they need 20+ monthly reports for board packs.
+
+Key points from customer conversations:
+- Acme Corp (£120k ARR) said this is blocking them from renewing — they spend 2+ hours a month downloading reports manually
+- Three other enterprise accounts have raised similar requests in the last quarter
+- Most want PDF format, but a couple asked about CSV for the data-heavy reports
+
+What I'm thinking:
+- Checkbox selection on the dashboard to pick multiple reports
+- "Export Selected" button that generates a ZIP file
+- Should work for up to 50 reports at a time (that's the most any customer has)
+- Needs to be reasonably fast — under a minute ideally
+
+Constraints:
+- Has to work with the existing reporting API (v2) — we can't rewrite that right now
+- James mentioned there's some tech debt around the PDF generation being synchronous, which might be an issue
+- We need this before the Q2 board meeting (end of June) because it's on the customer success roadmap we presented
+
+Out of scope for now:
+- Scheduled/automated exports (that's a bigger piece of work)
+- Export formats other than PDF and CSV
+- Report customisation before export (they get what's already generated)
+
+Can we get a rough PRD together by end of week? Happy to jump on a call to discuss.
+
+Cheers,
+Sarah
+
+P.S. — Priya from design said she can do mockups once we've got the requirements nailed down. Let's loop her in once we've got a first draft.

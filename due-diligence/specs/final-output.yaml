@@ -1,0 +1,80 @@
+# Final Pipeline Output Spec
+# The complete output after human review and approval
+
+schema:
+  deal_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      started: { type: datetime }
+      indexed: { type: datetime }
+      risks_extracted: { type: datetime }
+      cross_referenced: { type: datetime }
+      report_written: { type: datetime }
+      human_reviewed: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  human_decision:
+    type: enum
+    required: true
+    values: [approved, amended, rejected, escalated]
+
+  reviewer:
+    type: object
+    required: true
+    fields:
+      name: { type: string }
+      role: { type: string }
+      amendments_made: { type: boolean }
+      amendment_notes: { type: string, required: false }
+
+  report_summary:
+    type: object
+    required: true
+    fields:
+      overall_risk_rating: { type: enum, values: [high, medium, low] }
+      total_risks: { type: integer }
+      deal_breaker_count: { type: integer }
+      red_count: { type: integer }
+      amber_count: { type: integer }
+      green_count: { type: integer }
+      cross_ref_findings: { type: integer }
+      data_room_completeness: { type: float }
+
+  output_files:
+    type: object
+    required: true
+    fields:
+      report: { type: string, description: "Path to final report.md" }
+      risk_register: { type: string, description: "Path to risk-register.yaml" }
+      indexer_output: { type: string }
+      risk_extractor_output: { type: string }
+      cross_referencer_output: { type: string }
+      report_writer_output: { type: string }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage:
+          type: enum
+          values: [document-indexer, risk-extractor, cross-referencer, report-writer, human-review]
+        output_file: { type: string }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+        documents_processed: { type: integer, required: false }
+    description: Full traceability for compliance and cost tracking
+
+  disclaimer: { type: string, required: true }

@@ -1,0 +1,82 @@
+# Final Pipeline Output Spec
+# The complete output after human review and approval
+
+schema:
+  review_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      diff_analysed: { type: datetime }
+      bug_scanned: { type: datetime }
+      style_checked: { type: datetime }
+      review_composed: { type: datetime }
+      human_reviewed: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  diff_summary:
+    type: object
+    required: true
+    fields:
+      files_changed: { type: integer }
+      lines_added: { type: integer }
+      lines_removed: { type: integer }
+      change_types: { type: list, items: { type: string } }
+
+  verdict:
+    type: object
+    required: true
+    fields:
+      automated: { type: enum, values: [approve, request-changes, escalate] }
+      human: { type: enum, values: [approved, edited, overridden, escalated] }
+      final: { type: enum, values: [approved, changes-requested, escalated] }
+
+  comments_posted:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        file: { type: string }
+        line: { type: integer }
+        severity: { type: string }
+        body: { type: string }
+        was_edited: { type: boolean, description: "Whether human modified this comment" }
+
+  findings_summary:
+    type: object
+    required: true
+    fields:
+      total: { type: integer }
+      by_severity:
+        type: object
+        fields:
+          critical: { type: integer }
+          major: { type: integer }
+          minor: { type: integer }
+          suggestion: { type: integer }
+      security_issues: { type: integer }
+      bugs_found: { type: integer }
+      style_violations: { type: integer }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [diff-analyser, bug-scanner, style-checker, review-composer, human] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for cost tracking and compliance

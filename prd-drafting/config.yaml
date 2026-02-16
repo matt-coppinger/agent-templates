@@ -1,0 +1,67 @@
+# PRD Drafting Agent Pipeline Configuration
+
+pipeline:
+  name: prd-drafting
+  version: "1.0"
+  description: Multi-agent PRD and specification drafting pipeline
+
+# Model recommendations per sub-agent
+models:
+  input_parser: claude-haiku       # Fast extraction from raw input
+  research_enricher: claude-haiku  # Lightweight cross-referencing
+  spec_writer: claude-sonnet       # Quality structured writing
+  reviewer: claude-sonnet          # Nuanced completeness assessment
+
+# Output format
+output:
+  format: prd                      # prd | feature-brief | tech-spec
+  language: en-GB                  # British English throughout
+
+# Completeness thresholds
+completeness:
+  min_score_to_pass: 0.7           # Below this, reviewer returns 'revise'
+  required_sections:               # Sections that must be present (for full PRD)
+    - problem_statement
+    - user_stories
+    - functional_requirements
+    - non_functional_requirements
+    - acceptance_criteria
+    - technical_approach
+    - milestones
+    - risks
+
+# Review criteria weights (must sum to 1.0)
+review_weights:
+  completeness: 0.25               # All required sections present and filled
+  testability: 0.25                # Requirements are measurable and verifiable
+  consistency: 0.20                # No contradictions between sections
+  feasibility: 0.15                # Technical approach is realistic
+  clarity: 0.15                    # Unambiguous language, no jargon without definition
+
+# Revision loop
+revision:
+  max_rounds: 2                    # Maximum writer ↔ reviewer cycles
+  escalate_on_max: false           # If true, escalate after max rounds; if false, present with caveats
+
+# Acceptance criteria format
+acceptance_criteria:
+  format: given-when-then          # given-when-then | bullet | numbered
+  min_criteria_per_story: 2        # Minimum acceptance criteria per user story
+
+# Non-functional requirements
+nfr:
+  checklist_path: ./knowledge-base/reference/nfr-checklist.md
+  required_categories:             # NFR categories that must be addressed
+    - performance
+    - security
+    - accessibility
+  recommended_categories:          # NFR categories that trigger warnings if missing
+    - internationalisation
+    - scalability
+    - observability
+
+# Templates
+templates:
+  prd: ./knowledge-base/templates/prd-template.md
+  feature_brief: ./knowledge-base/templates/feature-brief-template.md
+  tech_spec: ./knowledge-base/templates/technical-spec-template.md

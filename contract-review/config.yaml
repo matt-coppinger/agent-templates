@@ -1,0 +1,67 @@
+# Contract Review Agent Pipeline Configuration
+
+pipeline:
+  name: contract-review
+  version: "1.0"
+  description: Multi-agent contract review and clause extraction with mandatory human review
+
+# Model recommendations per sub-agent
+models:
+  clause_extractor: claude-sonnet    # Accurate clause parsing
+  risk_assessor: claude-sonnet       # Nuanced risk evaluation
+  comparator: claude-haiku           # Fast template comparison
+  summary_writer: claude-sonnet      # Quality executive summaries
+
+# Jurisdiction
+jurisdiction:
+  default: UK                        # Default governing law jurisdiction
+  supported:
+    - UK
+    - US
+    - EU
+  language: en-GB                    # Output language
+
+# Risk thresholds
+risk:
+  high_threshold: 0.8                # Score above this = high risk
+  medium_threshold: 0.5              # Score above this = medium risk
+  auto_escalate_red_flags: true      # Always escalate red-flag clauses to senior counsel
+  max_retries: 2                     # Summary writer retries before escalation
+
+# Standard clause checklist — clauses expected in a well-drafted commercial contract
+standard_clause_checklist:
+  - term-and-duration
+  - termination
+  - termination-for-convenience
+  - termination-for-cause
+  - liability-cap
+  - limitation-of-liability
+  - indemnity
+  - intellectual-property
+  - confidentiality
+  - payment-terms
+  - governing-law
+  - dispute-resolution
+  - force-majeure
+  - assignment
+  - entire-agreement
+  - notices
+  - data-protection
+  - warranties
+  - insurance
+  - non-solicitation
+
+# Knowledge base
+knowledge_base:
+  path: ./knowledge-base/
+  playbook_path: ./knowledge-base/playbook/
+  templates_path: ./knowledge-base/templates/
+  reference_path: ./knowledge-base/reference/
+
+# Human review — ALWAYS required for legal output
+review:
+  always_review: true                # Cannot be set to false for legal output
+  show_risk_heat_map: true
+  show_comparison: true
+  show_negotiation_points: true
+  disclaimer: "This review does not constitute legal advice. All findings must be reviewed by a qualified legal professional before any action is taken."

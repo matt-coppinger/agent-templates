@@ -1,0 +1,82 @@
+# Review Composer Sub-Agent Output Spec
+# Produces the final synthesised review with prioritised comments
+
+schema:
+  review_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  verdict:
+    type: enum
+    required: true
+    values: [approve, request-changes, escalate]
+    description: "Overall review recommendation"
+
+  verdict_rationale:
+    type: string
+    required: true
+    description: "Brief explanation of the verdict"
+
+  comments:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        file:
+          type: string
+        line_start:
+          type: integer
+        line_end:
+          type: integer
+        severity:
+          type: enum
+          values: [critical, major, minor, suggestion]
+        category:
+          type: enum
+          values: [bug, security, performance, style, documentation, complexity, race-condition, error-handling, resource-leak, praise]
+        body:
+          type: string
+          description: "The review comment text, formatted for the PR"
+        suggested_fix:
+          type: string
+          required: false
+        source_findings:
+          type: list
+          items: { type: string }
+          description: "IDs of bug-scan or style-check findings this comment synthesises"
+
+  positive_observations:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        file: { type: string, required: false }
+        observation: { type: string }
+
+  summary:
+    type: object
+    required: true
+    fields:
+      total_comments: { type: integer }
+      by_severity:
+        type: object
+        fields:
+          critical: { type: integer }
+          major: { type: integer }
+          minor: { type: integer }
+          suggestion: { type: integer }
+      omitted_count: { type: integer, description: "Findings dropped due to comment cap" }
+      files_reviewed: { type: integer }
+      overall_quality: { type: enum, values: [excellent, good, acceptable, needs-work, poor] }
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0

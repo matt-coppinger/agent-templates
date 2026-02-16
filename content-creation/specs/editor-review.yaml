@@ -1,0 +1,114 @@
+# Editor Review Output Spec
+# Produces quality assessment and verdict on drafted content
+
+schema:
+  brief_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  revision_round:
+    type: integer
+    required: true
+    description: "Which revision round this review covers"
+
+  scores:
+    type: object
+    required: true
+    fields:
+      brand_consistency:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: "Alignment with brand voice guide"
+      seo_score:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: "SEO optimisation quality (0 if not applicable)"
+      readability:
+        type: integer
+        min: 0
+        max: 100
+        description: "Estimated Flesch Reading Ease score"
+      factual_accuracy:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: "All claims supported by research"
+      platform_fitness:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: "Meets platform format and length requirements"
+      overall:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: "Weighted overall quality score"
+
+  verdict:
+    type: enum
+    required: true
+    values: [pass, revise, reject]
+    description: |
+      pass: meets all quality thresholds, ready for human approval
+      revise: specific improvements needed, return to writer
+      reject: fundamental issues, escalate to human
+
+  summary:
+    type: string
+    required: true
+    description: "2–3 sentence editorial summary"
+
+  strengths:
+    type: list
+    required: true
+    items: { type: string }
+    description: "What works well in this draft"
+
+  revision_notes:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        issue: { type: string, description: "What needs fixing" }
+        quote: { type: string, required: false, description: "Problematic text" }
+        suggestion: { type: string, description: "How to fix it" }
+        priority: { type: enum, values: [high, medium, low] }
+    description: "Actionable notes for the writer (max 5, verdict: revise only)"
+
+  rejection_reason:
+    type: string
+    required: false
+    description: "Explanation for rejection (verdict: reject only)"
+
+example:
+  brief_id: "BRF-2026-00042"
+  timestamp: "2026-02-15T10:20:00Z"
+  revision_round: 0
+  scores:
+    brand_consistency: 0.85
+    seo_score: 0.78
+    readability: 65
+    factual_accuracy: 1.0
+    platform_fitness: 0.90
+    overall: 0.83
+  verdict: revise
+  summary: "Strong draft with good use of research data and a compelling angle. SEO keyword integration in headings needs improvement, and two paragraphs drift into overly formal register."
+  strengths:
+    - "Excellent opening hook addressing the audience's pain point"
+    - "Statistics well integrated and naturally cited"
+    - "Clear, actionable CTA"
+  revision_notes:
+    - issue: "Primary keyword missing from H2 headings"
+      suggestion: "Work 'AI content creation' into at least one subheading"
+      priority: high
+    - issue: "Tone inconsistency in paragraphs 3–4"
+      quote: "It is imperative that organisations establish"
+      suggestion: "Too formal — rephrase to match the professional-friendly tone, e.g. 'Teams that set up...'"
+      priority: medium

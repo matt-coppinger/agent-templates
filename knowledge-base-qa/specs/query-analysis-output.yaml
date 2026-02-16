@@ -1,0 +1,106 @@
+# Query Analyser Sub-Agent Output Spec
+# Produces structured analysis of an incoming customer question
+
+schema:
+  query_id:
+    type: string
+    required: true
+    description: Unique identifier for this query
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of analysis
+
+  original_question:
+    type: string
+    required: true
+    description: The raw question as received
+
+  intent:
+    type: enum
+    required: true
+    values:
+      - factual
+      - procedural
+      - troubleshooting
+      - policy
+      - comparison
+      - general
+    description: Primary intent of the question
+
+  topic_area:
+    type: string
+    required: true
+    description: Primary topic (e.g. returns, billing, product-setup)
+
+  secondary_topics:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Additional topic areas if the question spans multiple
+
+  key_entities:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        entity: { type: string }
+        type: { type: enum, values: [product, feature, error, order, account, date, version, amount] }
+    description: Extracted entities relevant to retrieval
+
+  needs_clarification:
+    type: boolean
+    required: true
+    description: Whether the question needs clarification before proceeding
+
+  clarification_question:
+    type: string
+    required: false
+    description: Suggested question to ask the user (if needs_clarification is true)
+
+  search_queries:
+    type: list
+    required: true
+    items:
+      type: string
+    min_items: 2
+    max_items: 3
+    description: Reformulated queries optimised for knowledge base search
+
+  language:
+    type: string
+    required: true
+    description: ISO 639-1 language code detected from question
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Confidence in the analysis
+
+# Example output
+example:
+  query_id: "QRY-2026-00042"
+  timestamp: "2026-02-15T10:15:00Z"
+  original_question: "How do I return a faulty Widget Pro that I bought last week?"
+  intent: procedural
+  topic_area: returns
+  secondary_topics:
+    - products
+  key_entities:
+    - entity: "Widget Pro"
+      type: product
+    - entity: "last week"
+      type: date
+  needs_clarification: false
+  clarification_question: null
+  search_queries:
+    - "returns process faulty product"
+    - "Widget Pro return policy defective"
+    - "how to return faulty item"
+  language: en
+  confidence: 0.95

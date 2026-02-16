@@ -1,0 +1,73 @@
+# Documentation Generation Pipeline Configuration
+
+pipeline:
+  name: doc-generation
+  version: "1.0"
+  description: Multi-agent technical documentation generator with human review
+
+# Model recommendations per sub-agent
+models:
+  code-analyser: claude-haiku     # Fast, cheap code parsing
+  structure-planner: claude-haiku  # Quick structural decisions
+  doc-writer: claude-sonnet        # Quality writing with examples
+  quality-reviewer: claude-sonnet  # Nuanced accuracy assessment
+
+# Documentation defaults
+documentation:
+  output_format: markdown            # markdown | rst | asciidoc
+  spelling: en-GB                    # British English throughout
+  code_languages:                    # Default language hints for code blocks
+    - python
+    - typescript
+    - go
+  max_doc_length_words: 5000         # Soft limit per document
+  include_table_of_contents: true
+  include_changelog: true
+  include_version_badge: true
+
+# Doc type settings
+doc_types:
+  api-reference:
+    template: knowledge-base/templates/api-reference-template.md
+    require_examples: true
+    require_error_codes: true
+  tutorial:
+    template: null                   # Freeform structure
+    require_prerequisites: true
+    require_next_steps: true
+  runbook:
+    template: knowledge-base/templates/runbook-template.md
+    require_rollback: true
+    require_escalation_path: true
+  architecture:
+    template: knowledge-base/templates/architecture-doc-template.md
+    require_diagram_descriptions: true
+    require_decision_rationale: true
+
+# Cross-referencing
+cross_references:
+  enabled: true
+  link_style: relative               # relative | absolute
+  auto_link_types: true              # Automatically link type names to their docs
+  auto_link_functions: true          # Automatically link function names to their docs
+
+# Diff-based updates
+diff_updates:
+  enabled: true
+  compare_previous: true             # Compare against last generated version
+  preserve_manual_edits: true        # Don't overwrite human-edited sections
+  change_threshold: 0.1              # Min change ratio to trigger regeneration
+
+# Quality thresholds
+quality:
+  min_accuracy: 0.7
+  min_completeness: 0.7
+  min_readability: 0.7
+  max_retries: 2                     # Writer retries before escalation
+
+# Human review
+review:
+  always_review: true
+  auto_publish_threshold: 0.95       # Confidence threshold for auto-publish (if always_review: false)
+  show_quality_scores: true
+  show_code_coverage: true

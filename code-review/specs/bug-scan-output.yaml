@@ -1,0 +1,106 @@
+# Bug Scanner Sub-Agent Output Spec
+# Produces structured bug and vulnerability findings
+
+schema:
+  review_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  findings:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        id:
+          type: string
+          description: "Unique finding ID (e.g. BUG-001)"
+        severity:
+          type: enum
+          values: [critical, major, minor, suggestion]
+        category:
+          type: enum
+          values: [bug, security, performance, race-condition, error-handling, resource-leak]
+        file:
+          type: string
+          description: "File path"
+        line_start:
+          type: integer
+        line_end:
+          type: integer
+        title:
+          type: string
+          description: "Short description (one line)"
+        description:
+          type: string
+          description: "Detailed explanation of the issue"
+        code_snippet:
+          type: string
+          description: "The problematic code"
+        suggested_fix:
+          type: string
+          required: false
+          description: "Code snippet with the suggested correction"
+        confidence:
+          type: float
+          min: 0.0
+          max: 1.0
+          description: "Confidence this is a genuine issue"
+        references:
+          type: list
+          required: false
+          items: { type: string }
+          description: "CWE IDs, OWASP references, or documentation links"
+
+  summary:
+    type: object
+    required: true
+    fields:
+      total_findings: { type: integer }
+      by_severity:
+        type: object
+        fields:
+          critical: { type: integer }
+          major: { type: integer }
+          minor: { type: integer }
+          suggestion: { type: integer }
+      by_category:
+        type: object
+        description: "Count of findings per category"
+      highest_severity: { type: enum, values: [critical, major, minor, suggestion, none] }
+      security_issues_found: { type: boolean }
+
+  overall_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+# Example output
+example:
+  review_id: "PR-1234"
+  timestamp: "2026-02-15T10:05:00Z"
+  findings:
+    - id: "BUG-001"
+      severity: critical
+      category: security
+      file: "src/middleware/rate-limiter.ts"
+      line_start: 45
+      line_end: 47
+      title: "Redis connection string contains hardcoded credentials"
+      description: "The Redis connection URL on line 45 contains a plaintext password. This will be committed to version control and visible to anyone with repository access."
+      code_snippet: "const redis = createClient({ url: 'redis://admin:s3cret@redis.internal:6379' })"
+      suggested_fix: "const redis = createClient({ url: process.env.REDIS_URL })"
+      confidence: 0.98
+      references: ["CWE-798", "OWASP A07:2021"]
+  summary:
+    total_findings: 1
+    by_severity: { critical: 1, major: 0, minor: 0, suggestion: 0 }
+    by_category: { security: 1 }
+    highest_severity: critical
+    security_issues_found: true
+  overall_confidence: 0.95

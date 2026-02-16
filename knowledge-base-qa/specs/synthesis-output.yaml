@@ -1,0 +1,76 @@
+# Synthesiser Sub-Agent Output Spec
+# Produces a coherent answer with citations from retrieved passages
+
+schema:
+  query_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  answer:
+    type: string
+    required: true
+    description: The synthesised answer text with inline [source_id] citations
+
+  answer_summary:
+    type: string
+    required: true
+    description: One-sentence summary of the answer (for logs and quick review)
+
+  citations_used:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        passage_id:
+          type: string
+          description: References passage_id from retrieval output
+        claim:
+          type: string
+          description: The specific claim this citation supports
+    description: Mapping of citations to the claims they support
+
+  gaps:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Information gaps — aspects of the question not fully answered
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Self-assessed confidence in the answer
+
+  revision_number:
+    type: integer
+    required: true
+    description: "0 for first attempt, incremented on each revision"
+
+  revision_summary:
+    type: string
+    required: false
+    description: What was changed in this revision (if revision_number > 0)
+
+# Example output
+example:
+  query_id: "QRY-2026-00042"
+  timestamp: "2026-02-15T10:15:05Z"
+  answer: "You can return your faulty Widget Pro for a full refund or replacement within 30 days of purchase [P1]. To arrange the return, contact our support team who will organise collection [P1]. Your Widget Pro is also covered by a 12-month warranty for manufacturing defects, so you may be eligible for a warranty repair if you prefer [P2]."
+  answer_summary: "Faulty Widget Pro can be returned within 30 days for refund/replacement, or claimed under 12-month warranty."
+  citations_used:
+    - passage_id: "P1"
+      claim: "Return within 30 days for full refund or replacement"
+    - passage_id: "P1"
+      claim: "Contact support team to arrange collection"
+    - passage_id: "P2"
+      claim: "12-month warranty covering manufacturing defects"
+  gaps: []
+  confidence: 0.92
+  revision_number: 0

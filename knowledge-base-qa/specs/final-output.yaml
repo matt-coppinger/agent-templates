@@ -1,0 +1,96 @@
+# Final Pipeline Output Spec
+# The complete output after the full Q&A pipeline has run
+
+schema:
+  query_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  status:
+    type: enum
+    required: true
+    values:
+      - answered
+      - answered_with_caveat
+      - no_answer_found
+      - escalated
+    description: |
+      answered: high-confidence answer returned
+      answered_with_caveat: medium-confidence answer with review flag
+      no_answer_found: retrieval found nothing relevant
+      escalated: sent to human agent due to low confidence or rejection
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      analysed: { type: datetime }
+      retrieved: { type: datetime }
+      synthesised: { type: datetime, required: false }
+      verified: { type: datetime, required: false }
+      completed: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  question:
+    type: object
+    required: true
+    fields:
+      original: { type: string }
+      intent: { type: string }
+      topic_area: { type: string }
+
+  answer:
+    type: object
+    required: false
+    description: "Present when status is answered or answered_with_caveat"
+    fields:
+      text: { type: string, description: "Final answer text with citations" }
+      summary: { type: string }
+      caveat: { type: string, required: false, description: "Caveat message if medium confidence" }
+
+  no_answer:
+    type: object
+    required: false
+    description: "Present when status is no_answer_found"
+    fields:
+      reason: { type: string }
+      suggested_queries: { type: list, items: { type: string } }
+      recommendation: { type: string, description: "Next step for the customer" }
+
+  escalation:
+    type: object
+    required: false
+    description: "Present when status is escalated"
+    fields:
+      reason: { type: string }
+      attempted_answer: { type: string, required: false }
+      verifier_concerns: { type: list, items: { type: string } }
+      suggested_action: { type: string }
+
+  quality:
+    type: object
+    required: true
+    fields:
+      confidence: { type: float }
+      hallucination_risk: { type: string }
+      human_review_recommended: { type: boolean }
+      sources_cited: { type: integer }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [query-analyser, retriever, synthesiser, verifier] }
+        output_file: { type: string }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for cost tracking and debugging

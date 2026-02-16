@@ -1,0 +1,100 @@
+# Reviewer Sub-Agent Output Spec
+# Produces quality assessment of the drafted specification
+
+schema:
+  spec_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  scores:
+    type: object
+    required: true
+    fields:
+      completeness: { type: float, min: 0.0, max: 1.0 }
+      testability: { type: float, min: 0.0, max: 1.0 }
+      consistency: { type: float, min: 0.0, max: 1.0 }
+      feasibility: { type: float, min: 0.0, max: 1.0 }
+      clarity: { type: float, min: 0.0, max: 1.0 }
+      overall: { type: float, min: 0.0, max: 1.0, description: "Weighted score per config.yaml" }
+
+  verdict:
+    type: enum
+    required: true
+    values: [pass, revise, escalate]
+
+  issues:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        section: { type: string }
+        severity: { type: enum, values: [blocker, major, minor, suggestion] }
+        description: { type: string }
+        suggestion: { type: string }
+
+  nfr_assessment:
+    type: object
+    required: true
+    fields:
+      required_present: { type: list, items: { type: string } }
+      required_missing: { type: list, items: { type: string } }
+      recommended_present: { type: list, items: { type: string } }
+      recommended_missing: { type: list, items: { type: string } }
+
+  testability_assessment:
+    type: object
+    required: true
+    fields:
+      testable_count: { type: integer }
+      untestable_count: { type: integer }
+      vague_criteria: { type: list, items: { type: string, description: "Acceptance criteria with vague language" } }
+
+  revision_notes:
+    type: string
+    required: false
+    description: "Specific instructions for the spec writer if verdict is 'revise'"
+
+  human_summary:
+    type: string
+    required: true
+    description: "2–3 sentence summary for a busy product manager"
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+example:
+  spec_id: "PRD-2026-00042"
+  timestamp: "2026-02-15T10:20:00Z"
+  scores:
+    completeness: 0.85
+    testability: 0.90
+    consistency: 0.80
+    feasibility: 0.75
+    clarity: 0.85
+    overall: 0.84
+  verdict: pass
+  issues:
+    - section: "Milestones"
+      severity: minor
+      description: "Phase 2 timeline depends on API team capacity which is not confirmed"
+      suggestion: "Add a dependency note and fallback timeline if API team is unavailable"
+  nfr_assessment:
+    required_present: [performance, security, accessibility]
+    required_missing: []
+    recommended_present: [scalability]
+    recommended_missing: [internationalisation, observability]
+  testability_assessment:
+    testable_count: 12
+    untestable_count: 1
+    vague_criteria: ["System should feel responsive"]
+  revision_notes: ""
+  human_summary: "Solid PRD with clear requirements and testable acceptance criteria. Milestones need a dependency caveat for the API team. Internationalisation and observability NFRs are absent but not blockers."
+  confidence: 0.88

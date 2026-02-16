@@ -1,0 +1,181 @@
+# Forecaster Sub-Agent Output Spec
+# Produces forward projections with scenario modelling and confidence intervals
+
+schema:
+  report_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  forecast_horizon:
+    type: object
+    required: true
+    fields:
+      months: { type: integer }
+      start_date: { type: date }
+      end_date: { type: date }
+
+  method:
+    type: string
+    required: true
+    description: Forecasting method used (from config)
+
+  scenarios:
+    type: object
+    required: true
+    fields:
+      best:
+        type: object
+        fields:
+          label: { type: string }
+          projections:
+            type: list
+            items:
+              type: object
+              fields:
+                period: { type: string }
+                kpis:
+                  type: object
+                  description: "Key-value pairs of KPI name to projected value"
+      base:
+        type: object
+        fields:
+          label: { type: string }
+          projections:
+            type: list
+            items:
+              type: object
+              fields:
+                period: { type: string }
+                kpis: { type: object }
+      worst:
+        type: object
+        fields:
+          label: { type: string }
+          projections:
+            type: list
+            items:
+              type: object
+              fields:
+                period: { type: string }
+                kpis: { type: object }
+
+  confidence_intervals:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        kpi: { type: string }
+        level: { type: float, description: "e.g. 0.80 for 80% CI" }
+        intervals:
+          type: list
+          items:
+            type: object
+            fields:
+              period: { type: string }
+              lower: { type: float }
+              upper: { type: float }
+              point_estimate: { type: float }
+
+  seasonal_adjustments:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        kpi: { type: string }
+        seasonal_indices:
+          type: object
+          description: "Month number (1-12) to seasonal index (1.0 = no adjustment)"
+        material_months:
+          type: list
+          items:
+            type: string
+          description: "Months where seasonal adjustment has a material impact"
+
+  sensitivity_analysis:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        kpi: { type: string }
+        base_value: { type: float, description: "Base case annual projection" }
+        sensitivities:
+          type: list
+          items:
+            type: object
+            fields:
+              assumption: { type: string, description: "What changes" }
+              change: { type: string, description: "e.g. '+2% growth'" }
+              impact: { type: float, description: "Change in projected value" }
+              new_value: { type: float }
+
+  assumptions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        assumption: { type: string }
+        basis: { type: string, description: "Why this assumption was made" }
+        sensitivity: { type: enum, values: [high, medium, low], description: "How much the forecast depends on this" }
+
+  forecast_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Overall confidence in the forecast
+
+  low_confidence_items:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        kpi: { type: string }
+        confidence: { type: float }
+        reason: { type: string }
+
+example:
+  report_id: "RPT-2026-01"
+  timestamp: "2026-02-15T10:00:20Z"
+  forecast_horizon:
+    months: 12
+    start_date: "2026-02-01"
+    end_date: "2027-01-31"
+  method: trend-extrapolation
+  scenarios:
+    best:
+      label: "Best Case"
+      projections:
+        - period: "Feb 2026"
+          kpis: { revenue: 1375000, ebitda: 412500 }
+    base:
+      label: "Base Case"
+      projections:
+        - period: "Feb 2026"
+          kpis: { revenue: 1262500, ebitda: 340875 }
+    worst:
+      label: "Worst Case"
+      projections:
+        - period: "Feb 2026"
+          kpis: { revenue: 1137500, ebitda: 261250 }
+  confidence_intervals:
+    - kpi: revenue
+      level: 0.80
+      intervals:
+        - period: "Feb 2026"
+          lower: 1180000
+          upper: 1345000
+          point_estimate: 1262500
+  assumptions:
+    - assumption: "Revenue growth continues at 13.6% YoY"
+      basis: "Based on Jan 2025 to Jan 2026 observed growth rate"
+      sensitivity: high
+  forecast_confidence: 0.72

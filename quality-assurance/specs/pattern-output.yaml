@@ -1,0 +1,127 @@
+# Pattern Detector Sub-Agent Output Spec
+# Produces identified trends, clusters, and correlations from parsed quality data
+
+schema:
+  analysis_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  trends:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        metric: { type: string, description: "What is trending (e.g. defect_rate, category count)" }
+        direction: { type: enum, values: [increasing, decreasing, stable, cyclical] }
+        strength: { type: float, min: 0.0, max: 1.0 }
+        period: { type: string, description: "Time window analysed" }
+        data_points: { type: integer }
+        description: { type: string }
+        confidence: { type: enum, values: [high, medium, low] }
+
+  clusters:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        cluster_id: { type: string }
+        defect_types: { type: list, items: { type: string } }
+        common_factors:
+          type: object
+          fields:
+            line: { type: string, required: false }
+            shift: { type: string, required: false }
+            supplier: { type: string, required: false }
+            location: { type: string, required: false }
+            time_period: { type: string, required: false }
+        occurrence_count: { type: integer }
+        is_new: { type: boolean, description: "First time this cluster has been observed" }
+        description: { type: string }
+
+  correlations:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        variable_a: { type: string }
+        variable_b: { type: string }
+        correlation_coefficient: { type: float, min: -1.0, max: 1.0 }
+        relationship: { type: enum, values: [positive, negative, none] }
+        confidence: { type: enum, values: [high, medium, low] }
+        description: { type: string }
+
+  pareto:
+    type: object
+    required: true
+    fields:
+      ranked_defects:
+        type: list
+        items:
+          type: object
+          fields:
+            defect_type: { type: string }
+            count: { type: integer }
+            percentage: { type: float }
+            cumulative_percentage: { type: float }
+      vital_few: { type: list, items: { type: string }, description: "Top defects contributing to 80% threshold" }
+      vital_few_percentage: { type: float }
+
+  anomalies:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        description: { type: string }
+        severity: { type: enum, values: [high, medium, low] }
+        timestamp: { type: datetime, required: false }
+        metric: { type: string }
+        expected_value: { type: float }
+        actual_value: { type: float }
+
+example:
+  analysis_id: "QA-2026-00042"
+  timestamp: "2026-02-15T10:05:00Z"
+  trends:
+    - metric: "dimensional defects"
+      direction: increasing
+      strength: 0.78
+      period: "2026-02-01 to 2026-02-14"
+      data_points: 14
+      description: "Dimensional defects increased 40% over the past fortnight, concentrated on Line B"
+      confidence: high
+  clusters:
+    - cluster_id: "CLU-001"
+      defect_types: ["out-of-tolerance", "surface-roughness"]
+      common_factors:
+        line: "Line B"
+        shift: "Night"
+      occurrence_count: 18
+      is_new: false
+      description: "Recurring cluster of dimensional and surface defects on Line B night shift"
+  correlations:
+    - variable_a: "Night shift"
+      variable_b: "Dimensional defect rate"
+      correlation_coefficient: 0.72
+      relationship: positive
+      confidence: medium
+      description: "Night shift shows 72% correlation with elevated dimensional defect rates"
+  pareto:
+    ranked_defects:
+      - defect_type: dimensional
+        count: 18
+        percentage: 38.3
+        cumulative_percentage: 38.3
+      - defect_type: surface-finish
+        count: 12
+        percentage: 25.5
+        cumulative_percentage: 63.8
+    vital_few: ["dimensional", "surface-finish"]
+    vital_few_percentage: 63.8

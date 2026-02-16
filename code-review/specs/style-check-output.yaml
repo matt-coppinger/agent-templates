@@ -1,0 +1,98 @@
+# Style Checker Sub-Agent Output Spec
+# Produces structured style and quality findings
+
+schema:
+  review_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  findings:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        id:
+          type: string
+          description: "Unique finding ID (e.g. STYLE-001)"
+        severity:
+          type: enum
+          values: [critical, major, minor, suggestion]
+        category:
+          type: enum
+          values: [naming, documentation, complexity, formatting, dead-code, magic-number, import-order]
+        file:
+          type: string
+        line_start:
+          type: integer
+        line_end:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        code_snippet:
+          type: string
+        suggested_fix:
+          type: string
+          required: false
+        style_guide_reference:
+          type: string
+          required: false
+          description: "Reference to the relevant style guide section"
+
+  complexity_report:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        file: { type: string }
+        function_name: { type: string }
+        cyclomatic_complexity: { type: integer }
+        line_count: { type: integer }
+        nesting_depth: { type: integer }
+        parameter_count: { type: integer }
+        exceeds_threshold: { type: boolean }
+
+  documentation_coverage:
+    type: object
+    required: true
+    fields:
+      public_apis_total: { type: integer }
+      public_apis_documented: { type: integer }
+      coverage_percentage: { type: float }
+      undocumented:
+        type: list
+        items:
+          type: object
+          fields:
+            file: { type: string }
+            name: { type: string }
+            type: { type: enum, values: [function, class, method, module] }
+
+  summary:
+    type: object
+    required: true
+    fields:
+      total_findings: { type: integer }
+      by_severity:
+        type: object
+        fields:
+          critical: { type: integer }
+          major: { type: integer }
+          minor: { type: integer }
+          suggestion: { type: integer }
+      by_category:
+        type: object
+      highest_severity: { type: enum, values: [critical, major, minor, suggestion, none] }
+
+  overall_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0

@@ -1,0 +1,77 @@
+# Final Pipeline Output Spec
+# The complete output after human review and approval
+
+schema:
+  review_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      clauses_extracted: { type: datetime }
+      risk_assessed: { type: datetime }
+      compared: { type: datetime }
+      summary_written: { type: datetime }
+      human_reviewed: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  contract_metadata:
+    type: object
+    required: true
+    fields:
+      title: { type: string }
+      parties: { type: list, items: { type: string } }
+      contract_type: { type: string }
+      governing_law: { type: string }
+      effective_date: { type: string }
+
+  overall_risk:
+    type: enum
+    required: true
+    values: [high, medium, low]
+
+  risk_heat_map:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        clause_category: { type: string }
+        risk_level: { type: enum, values: [high, medium, low] }
+        action: { type: enum, values: [accept, negotiate, reject, escalate] }
+
+  human_decision:
+    type: enum
+    required: true
+    values: [approved, edited, escalated, re-review-requested]
+
+  human_notes:
+    type: string
+    required: false
+    description: Any notes added by the reviewing solicitor
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [clause-extractor, risk-assessor, comparator, summary-writer, human] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking
+
+  disclaimer:
+    type: string
+    required: true
+    description: "Must state: This review does not constitute legal advice"

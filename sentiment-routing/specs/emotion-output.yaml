@@ -1,0 +1,129 @@
+# Emotion Detector Sub-Agent Output Spec
+# Detects emotions, tone, and sentiment signals from customer messages
+
+schema:
+  message_id:
+    type: string
+    required: true
+    description: Unique identifier for the message
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of analysis
+
+  emotions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        emotion:
+          type: enum
+          values: [anger, frustration, satisfaction, confusion, urgency, distress, disappointment]
+        intensity:
+          type: float
+          min: 0.0
+          max: 1.0
+          description: Strength of the emotion (0 = absent, 1 = extreme)
+        evidence:
+          type: list
+          items:
+            type: string
+          description: Verbatim phrases from the message supporting this detection
+
+  primary_emotion:
+    type: enum
+    required: true
+    values: [anger, frustration, satisfaction, confusion, urgency, distress, disappointment]
+    description: The dominant emotion detected
+
+  tone:
+    type: enum
+    required: true
+    values: [aggressive, assertive, neutral, polite, desperate]
+    description: Overall tone classification
+
+  sentiment:
+    type: enum
+    required: true
+    values: [very-negative, negative, neutral, positive, very-positive]
+    description: Overall sentiment polarity
+
+  key_phrases:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        phrase:
+          type: string
+          description: Verbatim phrase from the message
+        signal_type:
+          type: enum
+          values: [emotional, urgency, threat, emphasis, churn, praise]
+        significance:
+          type: string
+          description: Why this phrase matters for routing
+
+  safety_threat:
+    type: boolean
+    required: true
+    description: True if message contains self-harm references or threats of violence
+
+  legal_threat:
+    type: boolean
+    required: true
+    description: True if message references lawyers, regulators, or legal action
+
+  language:
+    type: string
+    required: true
+    description: ISO 639-1 language code detected from message
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Overall confidence in the emotion analysis
+
+# Example output
+example:
+  message_id: "MSG-2026-00412"
+  timestamp: "2026-02-15T14:22:00Z"
+  emotions:
+    - emotion: anger
+      intensity: 0.85
+      evidence:
+        - "absolutely FURIOUS"
+        - "completely unacceptable"
+    - emotion: frustration
+      intensity: 0.9
+      evidence:
+        - "this is the THIRD time"
+        - "still haven't resolved"
+    - emotion: urgency
+      intensity: 0.6
+      evidence:
+        - "need this sorted today"
+  primary_emotion: frustration
+  tone: aggressive
+  sentiment: very-negative
+  key_phrases:
+    - phrase: "absolutely FURIOUS"
+      signal_type: emotional
+      significance: Strong anger indicator — capitalised for emphasis
+    - phrase: "this is the THIRD time"
+      signal_type: emphasis
+      significance: Repeat contact frustration — escalation risk
+    - phrase: "switching to a competitor"
+      signal_type: churn
+      significance: Explicit churn intent
+    - phrase: "Trading Standards"
+      signal_type: threat
+      significance: Regulatory body mention — potential legal escalation
+  safety_threat: false
+  legal_threat: true
+  language: en
+  confidence: 0.93

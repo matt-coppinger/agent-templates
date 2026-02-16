@@ -1,0 +1,97 @@
+# Report Generator Sub-Agent Output Spec
+# Produces the comprehensive QA report
+
+schema:
+  analysis_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  executive_summary:
+    type: string
+    required: true
+    description: "3-5 sentence overview of key findings and recommendations"
+
+  quality_health:
+    type: enum
+    required: true
+    values: [good, warning, critical]
+
+  pareto_analysis:
+    type: object
+    required: true
+    fields:
+      description: { type: string }
+      vital_few:
+        type: list
+        items:
+          type: object
+          fields:
+            defect_type: { type: string }
+            count: { type: integer }
+            percentage: { type: float }
+            cumulative_percentage: { type: float }
+      insight: { type: string, description: "What the Pareto distribution reveals" }
+
+  trend_analysis:
+    type: object
+    required: true
+    fields:
+      summary: { type: string }
+      improving: { type: list, items: { type: string } }
+      deteriorating: { type: list, items: { type: string } }
+      stable: { type: list, items: { type: string } }
+
+  root_cause_summary:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        hypothesis: { type: string }
+        ishikawa_category: { type: string }
+        confidence: { type: enum, values: [high, medium, low] }
+        priority: { type: enum, values: [critical, high, medium, low] }
+        verification_status: { type: enum, values: [confirmed, unconfirmed, investigating] }
+
+  corrective_actions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        action_id: { type: string }
+        action: { type: string }
+        priority: { type: enum, values: [critical, high, medium, low] }
+        type: { type: enum, values: [containment, corrective, preventive] }
+        suggested_owner: { type: string }
+        timeline: { type: string }
+        expected_impact: { type: string }
+        linked_hypothesis: { type: string, required: false }
+
+  kpi_dashboard:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        kpi: { type: string }
+        current_value: { type: float }
+        target: { type: float }
+        status: { type: enum, values: [green, amber, red] }
+        trend: { type: enum, values: [improving, stable, deteriorating] }
+
+  quality_score:
+    type: enum
+    required: true
+    values: [pass, review, critical]
+    description: "Overall report quality assessment for the orchestrator"
+
+  caveats:
+    type: list
+    required: false
+    items: { type: string }
+    description: "Data limitations and analysis caveats"

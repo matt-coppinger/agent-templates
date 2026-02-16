@@ -1,0 +1,56 @@
+# HR Policy & Benefits Q&A Pipeline Configuration
+
+pipeline:
+  name: hr-policy-qa
+  version: "1.0"
+  description: Multi-agent HR policy Q&A chatbot with sensitivity escalation
+
+# Model recommendations per sub-agent
+models:
+  classifier: claude-haiku        # Fast, cheap classification
+  retriever: claude-haiku         # Fast policy search and extraction
+  generator: claude-sonnet        # Quality empathetic writing
+  compliance: claude-sonnet       # Nuanced accuracy and sensitivity checking
+
+# Sensitivity thresholds
+sensitivity:
+  auto_escalate_topics:           # These topics ALWAYS go to a human
+    - grievance
+    - disciplinary
+    - redundancy
+    - termination
+    - whistleblowing
+  auto_escalate_level: high       # Sensitivity >= this level triggers escalation
+  min_confidence_to_answer: 0.6   # Below this, admit we don't know
+  max_retries: 2                  # Generator retries before escalation
+
+# Escalation contacts
+escalation:
+  default_contact: "hr@company.example.com"
+  grievance_contact: "hr-confidential@company.example.com"
+  benefits_contact: "benefits@company.example.com"
+  payroll_contact: "payroll@company.example.com"
+
+# Tone and language
+tone:
+  style: empathetic-professional   # empathetic-professional | formal | friendly
+  language: en-GB                  # British English throughout
+  sign_off: "Your HR Team"
+  organisation_name: "Your Company"
+
+# Knowledge base
+knowledge_base:
+  path: ./knowledge-base/
+  max_sources: 5                   # Max policy sections to cite per answer
+  similarity_threshold: 0.7        # Min relevance score for results
+
+# Compliance guardrails
+compliance:
+  block_legal_advice: true         # Never provide legal advice
+  require_citations: true          # Every factual claim must cite a policy
+  flag_statutory_references: true  # Flag when answer touches statutory law
+  disclaimer_required_topics:      # Topics that need a standard disclaimer
+    - redundancy
+    - dismissal
+    - discrimination
+    - harassment

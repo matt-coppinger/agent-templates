@@ -1,0 +1,143 @@
+QUALITY DEFECT REPORT — FEBRUARY 2026 (WEEK 1-2)
+Facility: Manchester Production Centre
+Report Period: 01/02/2026 – 14/02/2026
+Total Units Inspected: 1,200
+Prepared by: Quality Department
+
+---
+
+DEF-001 | 03/02/2026 14:30 | Line B | Night Shift | CNC Mill Station 3
+Category: Dimensional — Out of tolerance
+Severity: MAJOR
+Description: Bore diameter 25.3mm, upper spec limit 25.0mm (tolerance ±0.1mm)
+Batch: B-2026-0089 | Supplier: Acme Materials
+Inspector: J. Smith | Status: OPEN
+Units affected: 12
+
+DEF-002 | 03/02/2026 16:45 | Line B | Night Shift | CNC Mill Station 3
+Category: Surface Finish — Surface roughness
+Severity: MINOR
+Description: Ra 3.2μm measured, specification Ra 1.6μm max
+Batch: B-2026-0089 | Supplier: Acme Materials
+Inspector: J. Smith | Status: OPEN
+Units affected: 8
+
+DEF-003 | 05/02/2026 09:15 | Line A | Day Shift | Assembly Station 7
+Category: Assembly — Missing component
+Severity: MAJOR
+Description: Seal ring omitted from assembly. Detected at final inspection.
+Batch: B-2026-0091 | Supplier: N/A (internal)
+Inspector: R. Patel | Status: CONTAINED
+Units affected: 3
+
+DEF-004 | 05/02/2026 11:00 | Line A | Day Shift | Goods Inward
+Category: Material — Out of spec
+Severity: MAJOR
+Description: Incoming aluminium bar stock hardness 95 HRB, specification max 85 HRB
+Batch: B-2026-0092 | Supplier: Acme Materials
+Inspector: K. Williams | Status: CONTAINED
+Units affected: 0 (quarantined before use)
+
+DEF-005 | 06/02/2026 22:10 | Line B | Night Shift | CNC Mill Station 3
+Category: Dimensional — Out of tolerance
+Severity: MAJOR
+Description: Bore diameter 25.25mm, upper spec limit 25.0mm
+Batch: B-2026-0093 | Supplier: Acme Materials
+Inspector: T. Ahmed | Status: OPEN
+Units affected: 6
+
+DEF-006 | 07/02/2026 08:30 | Line C | Day Shift | Paint Booth 2
+Category: Surface Finish — Discolouration
+Severity: MINOR
+Description: Yellow tint on white-coated parts, colour outside ΔE tolerance
+Batch: B-2026-0094 | Supplier: ChemCoat Ltd
+Inspector: R. Patel | Status: OPEN
+Units affected: 15
+
+DEF-007 | 07/02/2026 14:00 | Line A | Day Shift | Final Inspection
+Category: Functional — Performance failure
+Severity: CRITICAL
+Description: Pressure test failure at 12 bar, specification minimum 15 bar. Potential safety concern.
+Batch: B-2026-0091 | Supplier: N/A (internal)
+Inspector: J. Smith | Status: CONTAINED
+Units affected: 1
+
+DEF-008 | 08/02/2026 23:45 | Line B | Night Shift | CNC Lathe Station 1
+Category: Dimensional — Warpage
+Severity: MINOR
+Description: Shaft runout 0.08mm, specification max 0.05mm
+Batch: B-2026-0089 | Supplier: Acme Materials
+Inspector: T. Ahmed | Status: OPEN
+Units affected: 4
+
+DEF-009 | 10/02/2026 10:30 | Line A | Day Shift | Assembly Station 7
+Category: Assembly — Incorrect torque
+Severity: MINOR
+Description: Flange bolts torqued to 35 Nm, specification 45±5 Nm
+Batch: B-2026-0095 | Supplier: N/A (internal)
+Inspector: K. Williams | Status: CORRECTED
+Units affected: 2
+
+DEF-010 | 10/02/2026 15:00 | Line C | Day Shift | Goods Inward
+Category: Contamination — Particulate
+Severity: MINOR
+Description: Metal swarf found inside sealed component bags from supplier
+Batch: B-2026-0096 | Supplier: Precision Parts Co
+Inspector: R. Patel | Status: CONTAINED
+Units affected: 20
+
+DEF-011 | 11/02/2026 21:30 | Line B | Night Shift | CNC Mill Station 3
+Category: Dimensional — Out of tolerance
+Severity: MAJOR
+Description: Bore diameter 25.4mm, upper spec limit 25.0mm. Worst deviation this period.
+Batch: B-2026-0097 | Supplier: Acme Materials
+Inspector: T. Ahmed | Status: OPEN
+Units affected: 9
+
+DEF-012 | 12/02/2026 09:00 | Line A | Day Shift | Final Inspection
+Category: Documentation — Missing documentation
+Severity: MINOR
+Description: Material certificates not provided with batch B-2026-0096
+Batch: B-2026-0096 | Supplier: Precision Parts Co
+Inspector: J. Smith | Status: OPEN
+Units affected: N/A
+
+DEF-013 | 12/02/2026 13:15 | Line C | Day Shift | Paint Booth 2
+Category: Surface Finish — Paint defect
+Severity: MINOR
+Description: Orange peel texture on 8 units, likely spray gun pressure issue
+Batch: B-2026-0098 | Supplier: N/A (internal)
+Inspector: R. Patel | Status: CORRECTED
+Units affected: 8
+
+DEF-014 | 13/02/2026 22:00 | Line B | Night Shift | CNC Mill Station 3
+Category: Surface Finish — Burrs
+Severity: MINOR
+Description: Deburring incomplete on machined edges, sharp edges remaining
+Batch: B-2026-0097 | Supplier: Acme Materials
+Inspector: T. Ahmed | Status: OPEN
+Units affected: 5
+
+DEF-015 | 14/02/2026 10:45 | Line A | Day Shift | Assembly Station 3
+Category: Assembly — Wrong component
+Severity: MAJOR
+Description: M8 bolts used instead of specified M10 bolts
+Batch: B-2026-0099 | Supplier: FastFix Supplies
+Inspector: K. Williams | Status: CONTAINED
+Units affected: 2
+
+---
+
+SUMMARY
+Total defects logged: 15
+By severity: Critical: 1, Major: 6, Minor: 8
+By line: Line A: 5, Line B: 7, Line C: 3
+By shift: Day: 9, Night: 6
+Top supplier: Acme Materials (6 defects across 3 batches)
+Top location: CNC Mill Station 3 (5 defects)
+
+Notes:
+- Recurring dimensional issues on Line B night shift require investigation
+- Acme Materials quality trending downward — consider supplier audit
+- Critical pressure test failure (DEF-007) under investigation by engineering
+- Torque wrench calibration on Station 7 due — may relate to DEF-009

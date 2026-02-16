@@ -1,0 +1,89 @@
+# Anomaly Detector Sub-Agent Output Spec
+# Produces anomaly analysis for an invoice
+
+schema:
+  invoice_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of anomaly analysis
+
+  overall_risk:
+    type: enum
+    required: true
+    values: [none, low, medium, high, critical]
+    description: Overall risk assessment
+
+  anomalies:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        type:
+          type: enum
+          values: [amount, frequency, vendor, pattern, fraud_indicator]
+        severity:
+          type: enum
+          values: [low, medium, high, critical]
+        description:
+          type: string
+          description: "Human-readable explanation of the anomaly"
+        evidence:
+          type: string
+          description: "Specific data points supporting the flag"
+        recommendation:
+          type: string
+          description: "Suggested action"
+
+  amount_analysis:
+    type: object
+    required: true
+    fields:
+      is_unusual: { type: boolean }
+      category_average: { type: float, required: false, description: "Average for this category" }
+      deviation_factor: { type: float, required: false, description: "How many times the average" }
+      near_threshold: { type: boolean, description: "Amount is just below an approval threshold" }
+
+  vendor_analysis:
+    type: object
+    required: true
+    fields:
+      is_new_vendor: { type: boolean }
+      invoices_in_period: { type: integer, description: "Number of invoices from this vendor in the analysis window" }
+      total_in_period: { type: float, description: "Total spend with this vendor in the analysis window" }
+      notes: { type: string, required: false }
+
+  fraud_risk_score:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: "Composite fraud risk score (0 = no risk, 1 = high risk)"
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+# Example output
+example:
+  invoice_id: "INV-2026-00142"
+  timestamp: "2026-02-15T10:02:00Z"
+  overall_risk: low
+  anomalies: []
+  amount_analysis:
+    is_unusual: false
+    category_average: 380.00
+    deviation_factor: 1.42
+    near_threshold: false
+  vendor_analysis:
+    is_new_vendor: false
+    invoices_in_period: 3
+    total_in_period: 1620.00
+  fraud_risk_score: 0.05
+  confidence: 0.88

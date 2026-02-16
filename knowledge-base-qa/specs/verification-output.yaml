@@ -1,0 +1,118 @@
+# Verifier Sub-Agent Output Spec
+# Checks synthesised answers for hallucination, accuracy, and confidence
+
+schema:
+  query_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  verdict:
+    type: enum
+    required: true
+    values:
+      - pass
+      - revise
+      - reject
+    description: |
+      pass: answer is accurate and well-cited
+      revise: fixable issues found, send back to synthesiser
+      reject: serious hallucination or unreliable, escalate to human
+
+  claims:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        claim:
+          type: string
+          description: Individual factual claim from the answer
+        grounding:
+          type: enum
+          values: [grounded, partially_grounded, ungrounded, contradicted]
+          description: Whether the claim is supported by source passages
+        cited_passage:
+          type: string
+          description: The passage_id cited (or "none" if uncited)
+        citation_valid:
+          type: boolean
+          description: Whether the citation actually supports the claim
+        notes:
+          type: string
+          description: Explanation of grounding assessment
+
+  hallucination_risk:
+    type: enum
+    required: true
+    values: [none, low, medium, high]
+    description: Overall hallucination risk assessment
+
+  hallucination_details:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Specific hallucination concerns (if any)
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Overall confidence in the answer's accuracy
+
+  human_review_recommended:
+    type: boolean
+    required: true
+    description: Whether this answer should be reviewed by a human before delivery
+
+  human_review_reason:
+    type: string
+    required: false
+    description: Why human review is recommended
+
+  revision_notes:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        claim: { type: string }
+        issue: { type: string }
+        suggestion: { type: string }
+    description: Specific revision instructions for the synthesiser (when verdict is revise)
+
+  rejection_reason:
+    type: string
+    required: false
+    description: Why the answer was rejected (when verdict is reject)
+
+# Example output
+example:
+  query_id: "QRY-2026-00042"
+  timestamp: "2026-02-15T10:15:08Z"
+  verdict: pass
+  claims:
+    - claim: "Faulty Widget Pro can be returned within 30 days for full refund or replacement"
+      grounding: grounded
+      cited_passage: "P1"
+      citation_valid: true
+      notes: "Directly stated in returns policy"
+    - claim: "Contact support team to arrange collection"
+      grounding: grounded
+      cited_passage: "P1"
+      citation_valid: true
+      notes: "Stated in returns policy"
+    - claim: "12-month warranty covering manufacturing defects"
+      grounding: grounded
+      cited_passage: "P2"
+      citation_valid: true
+      notes: "Stated in product documentation"
+  hallucination_risk: none
+  hallucination_details: []
+  confidence: 0.93
+  human_review_recommended: false

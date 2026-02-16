@@ -1,0 +1,74 @@
+# Content Creation Pipeline Configuration
+
+pipeline:
+  name: content-creation
+  version: "1.0"
+  description: Multi-agent marketing content creation pipeline with revision loop
+
+# Model recommendations per sub-agent
+models:
+  brief-analyser: claude-haiku     # Fast, cheap brief parsing
+  research-compiler: claude-sonnet # Good reasoning for research and analysis
+  content-writer: claude-sonnet    # Quality writing
+  editor: claude-sonnet            # Nuanced editorial review
+
+# Revision loop settings
+revision:
+  max_rounds: 2                    # Maximum writer–editor revision cycles
+  min_readability_score: 60        # Flesch reading ease minimum (0–100)
+  min_brand_consistency: 0.8       # Brand voice alignment threshold (0–1)
+  min_seo_score: 0.7              # SEO optimisation threshold (0–1)
+
+# Brand voice defaults
+brand:
+  name: "Your Company"
+  default_tone: professional-friendly   # professional | casual | formal | professional-friendly | authoritative
+  language: en-GB                       # British English
+  voice_guide: ./knowledge-base/brand/voice-guide.md
+  style_guide: ./knowledge-base/brand/style-guide.md
+
+# SEO settings
+seo:
+  target_keyword_density: 1.5      # Percentage (1–3% recommended)
+  max_keyword_density: 3.0
+  include_meta_description: true
+  meta_description_length: 155     # Characters
+  include_alt_text: true           # For any suggested images
+
+# Platform targets
+platforms:
+  blog:
+    default_word_count: 1200
+    min_word_count: 800
+    max_word_count: 2500
+    include_headings: true
+    include_meta: true
+    template: ./knowledge-base/templates/blog-post-template.md
+
+  linkedin:
+    default_word_count: 250
+    max_word_count: 700
+    include_hashtags: true
+    max_hashtags: 5
+    template: ./knowledge-base/templates/social-media-templates.md
+
+  twitter:
+    max_characters: 280
+    thread_max_posts: 8
+    include_hashtags: true
+    max_hashtags: 3
+    template: ./knowledge-base/templates/social-media-templates.md
+
+  email:
+    default_word_count: 400
+    max_word_count: 800
+    include_subject_line: true
+    include_preview_text: true
+    include_cta: true
+    template: ./knowledge-base/templates/social-media-templates.md
+
+# Knowledge base
+knowledge_base:
+  path: ./knowledge-base/
+  brand_path: ./knowledge-base/brand/
+  templates_path: ./knowledge-base/templates/

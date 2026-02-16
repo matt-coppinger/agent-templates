@@ -1,0 +1,57 @@
+# Knowledge Base Q&A Pipeline Configuration
+
+pipeline:
+  name: knowledge-base-qa
+  version: "1.0"
+  description: RAG-powered knowledge base Q&A with hallucination detection
+
+# Model recommendations per sub-agent
+models:
+  query_analyser: claude-haiku     # Fast intent parsing
+  retriever: claude-haiku          # Efficient document search
+  synthesiser: claude-sonnet       # Quality answer generation
+  verifier: claude-sonnet          # Rigorous accuracy checking
+
+# Confidence thresholds
+confidence:
+  high_threshold: 0.8              # Above this: return answer directly
+  medium_threshold: 0.5            # Above this: return with caveat, flag for review
+  # Below medium: escalate to human agent
+  max_retries: 2                   # Synthesiser retries before escalation
+
+# Retrieval settings
+retrieval:
+  max_sources: 5                   # Maximum passages to retrieve per query
+  max_passages_per_source: 3       # Maximum passages from a single document
+  similarity_threshold: 0.6        # Minimum relevance score to include a passage
+  no_results_threshold: 0.4        # Below this for all results = no answer found
+
+# Hallucination detection
+verification:
+  max_ungrounded_claims: 0         # Number of ungrounded claims before rejection
+  require_citation: true           # Every claim must cite a source passage
+  flag_speculative_language: true  # Flag hedging/uncertain language
+
+# Knowledge base
+knowledge_base:
+  path: ./knowledge-base/          # Directory of markdown/text docs
+  file_types:
+    - "*.md"
+    - "*.txt"
+  ignore_dirs:
+    - README.md                    # Don't search the instructions file
+
+# Response settings
+response:
+  language: en-GB                  # British English
+  tone: professional-helpful       # professional | casual | formal | professional-helpful
+  max_answer_length: 500           # Maximum words in synthesised answer
+  include_citations: true          # Include source references in answer
+  include_confidence: false        # Don't show confidence score to end user
+
+# Human review
+review:
+  always_review_low_confidence: true
+  escalation_queue: "knowledge-qa-escalations"
+  show_retrieved_passages: true    # Show source passages to human reviewer
+  show_verifier_notes: true        # Show verification details to reviewer

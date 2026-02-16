@@ -1,0 +1,62 @@
+# Regulatory Change Monitoring Pipeline Configuration
+
+pipeline:
+  name: regulatory-monitoring
+  version: "1.0"
+  description: Multi-agent regulatory change monitoring with impact assessment
+
+# Model recommendations per sub-agent
+models:
+  feed_scanner: claude-haiku       # Fast, cheap parsing and categorisation
+  change_analyser: claude-sonnet   # Detailed regulatory analysis
+  impact_assessor: claude-sonnet   # Nuanced organisational impact assessment
+  briefing_writer: claude-sonnet   # Quality executive writing
+
+# Monitoring settings
+monitoring:
+  frequency: daily                   # daily | weekly | ad-hoc
+  jurisdiction: UK                   # Primary jurisdiction to monitor
+  secondary_jurisdictions: []        # Additional jurisdictions (e.g. [EU, US])
+  domains:
+    - data-protection
+    - employment-law
+    - financial-services
+    - health-and-safety
+    - environmental
+  max_changes_per_run: 50            # Safety limit on changes processed per run
+
+# Alerting thresholds
+alerting:
+  auto_alert_urgency: critical       # Alert immediately at this urgency level
+  deadline_warning_days: 30          # Flag deadlines within this window
+  high_penalty_threshold: 10000      # Flag penalties above this amount (GBP)
+  cross_functional_alert: true       # Alert when change affects 3+ departments
+
+# Briefing settings
+briefing:
+  style: executive                   # executive | detailed | summary
+  language: en-GB                    # Output language
+  max_length_words: 2000             # Maximum briefing length
+  include_recommendations: true      # Include recommended next steps
+  include_timeline: true             # Include compliance timeline
+
+# Knowledge base
+knowledge_base:
+  path: ./knowledge-base/
+  domains_path: ./knowledge-base/domains/
+  reference_path: ./knowledge-base/reference/
+
+# Deduplication
+deduplication:
+  change_log_path: ./output/change-log.yaml
+  match_fields:                      # Fields to match for deduplication
+    - source_reference
+    - title
+    - effective_date
+  retention_days: 365                # How long to keep entries in the change log
+
+# Output
+output:
+  path: ./output/
+  format: yaml                       # yaml | json
+  generate_markdown_briefing: true   # Also produce human-readable .md briefing

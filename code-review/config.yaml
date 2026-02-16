@@ -1,0 +1,68 @@
+# Code Review Agent Pipeline Configuration
+
+pipeline:
+  name: code-review
+  version: "1.0"
+  description: Multi-agent PR code review with human approval
+
+# Model recommendations per sub-agent
+models:
+  diff-analyser: claude-haiku     # Fast parsing and categorisation
+  bug-scanner: claude-sonnet      # Deep reasoning for bug detection
+  style-checker: claude-haiku     # Pattern matching against style rules
+  review-composer: claude-sonnet   # Nuanced synthesis and writing
+
+# Severity thresholds
+severity:
+  levels: [critical, major, minor, suggestion]
+  block_merge: [critical, major]        # These severities block merge recommendation
+  auto_approve_max_severity: suggestion  # Auto-approve if worst finding is this level
+
+# Language support
+languages:
+  - python
+  - javascript
+  - typescript
+  - java
+  - go
+  - rust
+  - c
+  - cpp
+  - csharp
+  - ruby
+  - php
+
+# Complexity thresholds
+complexity:
+  cyclomatic_warning: 10          # Warn if cyclomatic complexity exceeds this
+  cyclomatic_critical: 20         # Critical if cyclomatic complexity exceeds this
+  max_function_lines: 50          # Warn if function exceeds this many lines
+  max_file_changes: 500           # Flag large changesets for extra scrutiny
+
+# Style guide
+style:
+  guide_path: ./knowledge-base/style-guides/default-style.md
+  enforce_documentation: true     # Require docstrings/comments on public APIs
+  naming_convention: auto-detect  # auto-detect | camelCase | snake_case | PascalCase
+
+# Security scanning
+security:
+  check_secrets: true             # Scan for hardcoded secrets, API keys, tokens
+  check_injection: true           # SQL injection, XSS, command injection
+  check_dependencies: true        # Flag known vulnerable patterns
+  checklist_path: ./knowledge-base/patterns/security-checklist.md
+
+# Bug patterns
+bugs:
+  patterns_path: ./knowledge-base/patterns/common-bugs.md
+  check_null_safety: true
+  check_error_handling: true
+  check_race_conditions: true
+  check_resource_leaks: true
+
+# Human review
+review:
+  always_review: true             # Set false to auto-post high-confidence reviews
+  auto_post_threshold: 0.95       # Confidence threshold for auto-post (if always_review: false)
+  max_comments: 20                # Cap review comments to avoid overwhelming the author
+  group_by_file: true             # Group findings by file in final output

@@ -1,0 +1,49 @@
+# CV Screening & Shortlisting Pipeline Configuration
+
+pipeline:
+  name: cv-screening
+  version: "1.0"
+  description: Multi-agent CV screening and shortlisting with bias mitigation
+
+# Model recommendations per sub-agent
+models:
+  parser: claude-haiku         # Fast, cheap structured extraction
+  matcher: claude-haiku        # Fast requirement matching
+  assessor: claude-sonnet      # Nuanced holistic assessment
+  ranker: claude-sonnet        # Complex batch ranking
+
+# Scoring weights (must sum to 1.0)
+scoring:
+  must_have_weight: 0.50       # Weight for must-have requirements match
+  nice_to_have_weight: 0.15    # Weight for nice-to-have requirements match
+  experience_weight: 0.20      # Weight for relevant experience duration
+  assessment_weight: 0.15      # Weight for holistic assessor score
+
+# Shortlist settings
+shortlist:
+  size: 5                      # Target number of candidates to shortlist
+  minimum_score: 0.4           # Minimum overall score to be considered
+  borderline_range: 0.05       # Score range below cutoff to flag as borderline
+  max_batch_size: 25           # Max CVs to process in a single ranking pass
+
+# Bias mitigation
+bias_mitigation:
+  anonymise_names: true        # Strip candidate names
+  anonymise_age: true          # Strip dates of birth, graduation years older than 20 years
+  anonymise_gender: true       # Strip gender pronouns and identifiers
+  anonymise_address: true      # Strip addresses (keep country only for work authorisation)
+  anonymise_photos: true       # Ignore embedded photos
+  flag_biased_language: true   # Flag if assessment contains potentially biased language
+
+# Requirements matching
+requirements:
+  must_have_pass_threshold: 0.6    # Fraction of must-haves needed to proceed
+  experience_tolerance_years: 1    # Allow ±1 year flexibility on experience requirements
+  skills_exact_match: false        # Allow related/equivalent skills (e.g. "React" matches "React.js")
+
+# Output settings
+output:
+  include_interview_questions: true    # Generate tailored interview questions
+  questions_per_candidate: 3           # Number of interview focus questions
+  include_skills_gap: true             # Include detailed skills gap analysis
+  include_career_trajectory: true      # Include career trajectory assessment

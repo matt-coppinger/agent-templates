@@ -1,0 +1,90 @@
+# Final Pipeline Output Spec
+# The complete output after human review and routing confirmation
+
+schema:
+  message_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      emotion_analysed: { type: datetime }
+      context_assessed: { type: datetime }
+      priority_scored: { type: datetime }
+      routed: { type: datetime }
+      confirmed: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  emotion_summary:
+    type: object
+    required: true
+    fields:
+      primary_emotion: { type: string }
+      sentiment: { type: string }
+      tone: { type: string }
+      safety_threat: { type: boolean }
+      legal_threat: { type: boolean }
+
+  priority:
+    type: object
+    required: true
+    fields:
+      level: { type: enum, values: [P1, P2, P3, P4] }
+      raw_score: { type: float }
+      rationale: { type: string }
+      was_p1_triggered: { type: boolean }
+
+  routing:
+    type: object
+    required: true
+    fields:
+      team: { type: string }
+      handling_approach: { type: string }
+      sla_first_response_minutes: { type: integer }
+      sla_resolution_minutes: { type: integer }
+
+  customer:
+    type: object
+    required: true
+    fields:
+      account_id: { type: string }
+      is_vip: { type: boolean }
+      churn_risk_score: { type: float }
+      account_value_tier: { type: string }
+
+  human_decision:
+    type: enum
+    required: true
+    values: [confirmed, overridden, escalated]
+
+  override_details:
+    type: object
+    required: false
+    description: Only present if human_decision is "overridden"
+    fields:
+      original_team: { type: string }
+      new_team: { type: string }
+      original_priority: { type: string }
+      new_priority: { type: string }
+      reason: { type: string }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [emotion-detector, context-assessor, priority-scorer, router, human] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking

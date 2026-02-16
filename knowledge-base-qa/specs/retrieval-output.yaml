@@ -1,0 +1,87 @@
+# Retriever Sub-Agent Output Spec
+# Produces ranked passages from the knowledge base
+
+schema:
+  query_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  retrieval_status:
+    type: enum
+    required: true
+    values:
+      - results_found
+      - partial_results
+      - no_results
+    description: |
+      results_found: passages above similarity threshold found
+      partial_results: only weak matches found (below threshold but above floor)
+      no_results: nothing relevant in the knowledge base
+
+  total_documents_scanned:
+    type: integer
+    required: true
+    description: Number of documents examined
+
+  passages:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        passage_id:
+          type: string
+          description: Unique ID for citation (e.g. P1, P2)
+        source_file:
+          type: string
+          description: Path to source document relative to knowledge-base/
+        source_title:
+          type: string
+          description: Title or heading of the source document
+        passage_text:
+          type: string
+          description: Exact extracted passage text (unmodified)
+        relevance_score:
+          type: float
+          min: 0.0
+          max: 1.0
+          description: Relevance to the query
+        match_reason:
+          type: string
+          description: Brief explanation of why this passage is relevant
+
+  no_results_reason:
+    type: string
+    required: false
+    description: Explanation of why no results were found (when retrieval_status is no_results)
+
+  suggested_topics:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Suggested alternative topics to search (when results are poor)
+
+# Example output
+example:
+  query_id: "QRY-2026-00042"
+  timestamp: "2026-02-15T10:15:02Z"
+  retrieval_status: results_found
+  total_documents_scanned: 8
+  passages:
+    - passage_id: "P1"
+      source_file: "policies/returns-policy.md"
+      source_title: "Returns Policy"
+      passage_text: "Faulty items may be returned within 30 days of purchase for a full refund or replacement. Contact our support team to arrange collection."
+      relevance_score: 0.95
+      match_reason: "Directly addresses returning faulty products"
+    - passage_id: "P2"
+      source_file: "products/sample-product.md"
+      source_title: "Widget Pro"
+      passage_text: "The Widget Pro comes with a 12-month warranty covering manufacturing defects."
+      relevance_score: 0.78
+      match_reason: "Product warranty information relevant to faulty item"

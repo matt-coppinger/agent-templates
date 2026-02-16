@@ -1,0 +1,35 @@
+INVOICE
+
+From:
+Acme Office Supplies Ltd
+14 Commerce Road
+Manchester M1 2AB
+VAT Reg: GB 123 4567 89
+
+To:
+Your Company Ltd
+100 Business Park
+London EC1A 1BB
+
+Invoice Number: ACM-2026-0891
+Invoice Date: 10 February 2026
+Due Date: 12 March 2026
+Purchase Order: PO-2026-0234
+
+Description                          Qty    Unit Price    Amount
+-------------------------------------------------------------------
+A4 Printer Paper (box of 5 reams)     10      £25.00     £250.00
+Toner Cartridges - Black               4      £50.00     £200.00
+Whiteboard Markers (pack of 12)         3       £8.50      £25.50
+Desk Organiser Trays                    5      £12.00      £60.00
+-------------------------------------------------------------------
+                                    Subtotal              £535.50
+                                    VAT @ 20%             £107.10
+                                    ----------------------------
+                                    TOTAL DUE             £642.60
+
+Payment Terms: Net 30
+Bank Details: Sort Code 12-34-56 | Account 12345678
+Reference: ACM-2026-0891
+
+Thank you for your business.

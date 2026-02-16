@@ -1,0 +1,71 @@
+# Final Pipeline Output Spec
+# The complete output after compliance checking and delivery
+
+schema:
+  query_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      classified: { type: datetime }
+      retrieved: { type: datetime }
+      generated: { type: datetime }
+      checked: { type: datetime }
+      delivered: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  classification:
+    type: object
+    required: true
+    fields:
+      topic: { type: string }
+      sensitivity: { type: string }
+      employee_intent: { type: string }
+
+  response:
+    type: object
+    required: true
+    fields:
+      body: { type: string, description: "Final answer delivered to the employee" }
+      was_escalated: { type: boolean, description: "Whether the question was escalated to human HR" }
+      escalation_reason: { type: string, required: false }
+
+  actions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        step: { type: string }
+        contact: { type: string }
+        mandatory: { type: boolean }
+
+  quality:
+    type: object
+    required: true
+    fields:
+      compliance_confidence: { type: float }
+      issues_found: { type: integer }
+      sensitivity_flags: { type: list, items: { type: string } }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [classifier, retriever, generator, compliance] }
+        output_file: { type: string }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking

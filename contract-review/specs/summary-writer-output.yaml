@@ -1,0 +1,116 @@
+# Summary Writer Sub-Agent Output Spec
+# Produces executive summary with risk heat map and recommendations
+
+schema:
+  review_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  disclaimer:
+    type: string
+    required: true
+
+  executive_overview:
+    type: object
+    required: true
+    fields:
+      contract_type: { type: string }
+      parties: { type: list, items: { type: string } }
+      effective_date: { type: string }
+      estimated_value: { type: string }
+      overall_risk: { type: enum, values: [high, medium, low] }
+      overview_paragraph: { type: string, description: "One-paragraph overall assessment" }
+
+  risk_heat_map:
+    type: list
+    required: true
+    description: Clause-by-clause risk summary, ordered by priority
+    items:
+      type: object
+      fields:
+        priority: { type: integer, description: "1 = most urgent" }
+        clause_category: { type: string }
+        risk_level: { type: enum, values: [high, medium, low] }
+        action: { type: enum, values: [accept, negotiate, reject, escalate] }
+        one_line_summary: { type: string }
+
+  missing_clauses:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        clause_category: { type: string }
+        importance: { type: string }
+        recommended_action: { type: string }
+
+  red_flags:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        clause_category: { type: string }
+        description: { type: string }
+        escalation_path: { type: string }
+
+  recommended_actions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        clause_category: { type: string }
+        action: { type: enum, values: [accept, negotiate, reject, escalate] }
+        rationale: { type: string }
+        suggested_changes: { type: string, required: false }
+
+  negotiation_talking_points:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        priority: { type: integer }
+        clause_category: { type: string }
+        context: { type: string }
+        position: { type: string }
+        fallback: { type: string }
+
+  key_dates:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        description: { type: string }
+        date_or_period: { type: string }
+        action_required: { type: string }
+
+# Example output
+example:
+  review_id: "REV-2026-00042"
+  timestamp: "2026-02-15T10:15:00Z"
+  disclaimer: "This review does not constitute legal advice. All findings must be reviewed by a qualified legal professional."
+  executive_overview:
+    contract_type: "Master Services Agreement"
+    parties: ["Acme Ltd", "Widget Corp"]
+    effective_date: "1 March 2026"
+    estimated_value: "£120,000 per annum"
+    overall_risk: medium
+    overview_paragraph: "This is a broadly standard MSA with some notable deviations. The liability cap is below market at 12 months' charges, and the indemnity clause is one-sided. Two standard clauses (insurance, non-solicitation) are absent. One red flag identified in the IP assignment provisions."
+  risk_heat_map:
+    - priority: 1
+      clause_category: intellectual-property
+      risk_level: high
+      action: escalate
+      one_line_summary: "Broad IP assignment clause may transfer pre-existing IP to counterparty"
+    - priority: 2
+      clause_category: indemnity
+      risk_level: high
+      action: negotiate
+      one_line_summary: "Uncapped indemnity for IP infringement with no reciprocal obligation"

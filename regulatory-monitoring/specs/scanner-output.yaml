@@ -1,0 +1,104 @@
+# Feed Scanner Sub-Agent Output Spec
+# Produces structured extraction of regulatory changes from bulletins/feeds
+
+schema:
+  run_id:
+    type: string
+    required: true
+    description: Unique identifier for this pipeline run
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of scan
+
+  source:
+    type: object
+    required: true
+    fields:
+      name: { type: string, description: "Source publication or feed name" }
+      url: { type: string, required: false, description: "Source URL if available" }
+      date: { type: date, description: "Publication date of the bulletin" }
+      reliability: { type: enum, values: [official, verified, unverified] }
+
+  changes_found:
+    type: integer
+    required: true
+    description: Total number of changes extracted
+
+  changes:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        change_id:
+          type: string
+          description: "Unique ID for this change (RUN-ID-NNN format)"
+        title:
+          type: string
+          description: "Short descriptive title of the change"
+        change_type:
+          type: enum
+          values: [new-regulation, amendment, consultation, guidance-update, enforcement-action, deadline]
+        domain:
+          type: list
+          items:
+            type: enum
+            values: [data-protection, employment-law, financial-services, health-and-safety, environmental]
+        urgency:
+          type: enum
+          values: [critical, high, medium, low]
+        summary:
+          type: string
+          description: "2-3 sentence summary of the change"
+        source_reference:
+          type: string
+          description: "Official reference number (e.g. SI 2026/123, ICO-2026-04)"
+        effective_date:
+          type: date
+          required: false
+          description: "When the change comes into force (if known)"
+        consultation_deadline:
+          type: date
+          required: false
+          description: "Deadline for consultation responses (if applicable)"
+        issuing_body:
+          type: string
+          description: "Regulator or government body issuing the change"
+        confidence:
+          type: float
+          min: 0.0
+          max: 1.0
+          description: "Confidence in extraction accuracy"
+
+example:
+  run_id: "REG-2026-02-15-001"
+  timestamp: "2026-02-15T08:00:00Z"
+  source:
+    name: "ICO Regulatory Update"
+    url: "https://ico.org.uk/updates"
+    date: "2026-02-14"
+    reliability: official
+  changes_found: 2
+  changes:
+    - change_id: "REG-2026-02-15-001-001"
+      title: "Updated guidance on AI and automated decision-making under UK GDPR"
+      change_type: guidance-update
+      domain: [data-protection]
+      urgency: medium
+      summary: "The ICO has published updated guidance on the use of AI systems for automated decision-making. The guidance clarifies requirements for meaningful human review and transparency obligations."
+      source_reference: "ICO-2026-0214-AI"
+      effective_date: "2026-03-01"
+      issuing_body: "Information Commissioner's Office"
+      confidence: 0.95
+    - change_id: "REG-2026-02-15-001-002"
+      title: "Consultation on revised data breach notification thresholds"
+      change_type: consultation
+      domain: [data-protection]
+      urgency: low
+      summary: "The ICO is consulting on whether to revise the thresholds for mandatory breach notification. Responses are sought from data controllers of all sizes."
+      source_reference: "ICO-CON-2026-003"
+      consultation_deadline: "2026-04-30"
+      issuing_body: "Information Commissioner's Office"
+      confidence: 0.90

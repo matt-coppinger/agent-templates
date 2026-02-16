@@ -1,0 +1,121 @@
+# Document Indexer Sub-Agent Output Spec
+# Catalogues all data room documents with classification and completeness assessment
+
+schema:
+  deal_id:
+    type: string
+    required: true
+    description: Unique identifier for the deal/transaction
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of indexing
+
+  data_room_path:
+    type: string
+    required: true
+    description: Path to the data room directory
+
+  total_documents:
+    type: integer
+    required: true
+    description: Total number of documents catalogued
+
+  documents:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        filename: { type: string, required: true }
+        filepath: { type: string, required: true }
+        category:
+          type: enum
+          required: true
+          values: [financial, legal, commercial, hr, ip, regulatory, property, insurance, it, uncategorised]
+        subcategory: { type: string, required: false }
+        title: { type: string, required: true, description: "Human-readable document title" }
+        date: { type: string, required: false, description: "Document date (ISO 8601 or descriptive)" }
+        parties: { type: list, required: false, items: { type: string } }
+        key_values: { type: list, required: false, items: { type: string }, description: "Key monetary or quantitative values" }
+        status:
+          type: enum
+          required: true
+          values: [executed, draft, expired, superseded, unknown]
+        page_count: { type: integer, required: false }
+        confidence: { type: float, required: true, min: 0.0, max: 1.0 }
+        notes: { type: string, required: false }
+
+  completeness:
+    type: object
+    required: true
+    fields:
+      overall_percentage: { type: float, description: "Overall data room completeness %" }
+      by_category:
+        type: list
+        items:
+          type: object
+          fields:
+            category: { type: string }
+            expected: { type: integer }
+            present: { type: integer }
+            percentage: { type: float }
+            missing_documents:
+              type: list
+              items: { type: string }
+            critical_gaps:
+              type: list
+              items: { type: string }
+              description: "Missing documents that are critical for DD"
+
+  flags:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        type:
+          type: enum
+          values: [missing-critical, incomplete-category, unreadable, duplicate, outdated]
+        description: { type: string }
+        category: { type: string }
+        severity:
+          type: enum
+          values: [high, medium, low]
+
+example:
+  deal_id: "DD-2026-001"
+  timestamp: "2026-02-15T10:00:00Z"
+  data_room_path: "./data-room/"
+  total_documents: 147
+  documents:
+    - filename: "audited-accounts-2025.pdf"
+      filepath: "./data-room/financial/audited-accounts-2025.pdf"
+      category: financial
+      subcategory: "annual-accounts"
+      title: "Audited Annual Accounts FY2025"
+      date: "2025-04-30"
+      parties: ["Target Ltd", "Smith & Co Auditors"]
+      key_values: ["Revenue: £12.4m", "EBITDA: £2.1m"]
+      status: executed
+      page_count: 48
+      confidence: 0.95
+  completeness:
+    overall_percentage: 78.5
+    by_category:
+      - category: financial
+        expected: 15
+        present: 12
+        percentage: 80.0
+        missing_documents:
+          - "Management accounts (last 3 months)"
+          - "Tax computations FY2024"
+          - "Debtor ageing report"
+        critical_gaps:
+          - "Management accounts (last 3 months)"
+  flags:
+    - type: missing-critical
+      description: "No management accounts for the most recent quarter"
+      category: financial
+      severity: high

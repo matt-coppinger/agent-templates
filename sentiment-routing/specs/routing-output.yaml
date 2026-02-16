@@ -1,0 +1,169 @@
+# Router Sub-Agent Output Spec
+# Determines team, SLA, handling approach, and de-escalation guidance
+
+schema:
+  message_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  routing:
+    type: object
+    required: true
+    fields:
+      primary_team:
+        type: string
+        required: true
+        description: Destination team name
+      escalation_team:
+        type: string
+        required: false
+        description: If escalated, which team receives it
+      issue_category:
+        type: string
+        required: true
+        description: Classified issue type used for routing
+      handling_approach:
+        type: enum
+        required: true
+        values: [standard, expedited, dedicated, manager-handled]
+        description: How the ticket should be processed
+
+  sla:
+    type: object
+    required: true
+    fields:
+      first_response_minutes:
+        type: integer
+        required: true
+      resolution_minutes:
+        type: integer
+        required: true
+      priority:
+        type: enum
+        required: true
+        values: [P1, P2, P3, P4]
+
+  agent_guidance:
+    type: object
+    required: true
+    fields:
+      routing_slip:
+        type: string
+        required: true
+        description: |
+          3-5 sentence summary for the receiving agent. What the customer wants,
+          how they're feeling, what to watch out for, and suggested approach.
+
+      de_escalation_notes:
+        type: object
+        required: false
+        description: Required if any negative emotion intensity >= 0.5
+        fields:
+          opening_approach:
+            type: string
+            description: How to begin the conversation
+          phrases_to_avoid:
+            type: list
+            items:
+              type: string
+            description: Specific phrases that could worsen the situation
+          talking_points:
+            type: list
+            items:
+              type: string
+            description: Recommended talking points tailored to the customer's state
+          policy_references:
+            type: list
+            items:
+              type: object
+              fields:
+                policy: { type: string }
+                relevance: { type: string }
+
+      vip_notes:
+        type: string
+        required: false
+        description: Special handling notes for VIP customers
+
+      churn_notes:
+        type: string
+        required: false
+        description: Retention-specific guidance if churn risk is elevated
+
+  follow_up:
+    type: object
+    required: false
+    fields:
+      recommended:
+        type: boolean
+      timeframe:
+        type: string
+        description: When to follow up (e.g. "within 24 hours")
+      action:
+        type: string
+        description: What the follow-up should cover
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+# Example output
+example:
+  message_id: "MSG-2026-00412"
+  timestamp: "2026-02-15T14:22:10Z"
+  routing:
+    primary_team: retention
+    escalation_team: legal
+    issue_category: churn-risk
+    handling_approach: manager-handled
+  sla:
+    first_response_minutes: 15
+    resolution_minutes: 60
+    priority: P1
+  agent_guidance:
+    routing_slip: |
+      VIP customer (£12.5k annual, 38 months) threatening to leave and mentioning
+      Trading Standards over a repeated billing discrepancy. This is their 4th contact
+      in 30 days with 2 open tickets. They are furious and feel ignored. Lead with
+      empathy, acknowledge the repeated failures, and have authority ready to offer
+      a meaningful resolution.
+    de_escalation_notes:
+      opening_approach: |
+        Acknowledge the repeated contact immediately. Do not make them re-explain.
+        Start with: "I can see you've been in touch several times about this and I
+        completely understand your frustration. I'm taking personal ownership of this."
+      phrases_to_avoid:
+        - "I understand" (without specifics — feels dismissive)
+        - "Our policy is..." (feels bureaucratic when they're angry)
+        - "Unfortunately..." (negative framing)
+        - "As I mentioned before..." (implies they should already know)
+      talking_points:
+        - Acknowledge the specific number of contacts and apologise for the runaround
+        - Confirm the billing discrepancy details without making them repeat
+        - Offer a concrete resolution with a specific timeline
+        - Proactively offer goodwill gesture for the inconvenience
+      policy_references:
+        - policy: "Escalation Policy — Repeat Contact"
+          relevance: "3+ contacts about same issue triggers senior handling"
+        - policy: "Retention — Goodwill Gestures"
+          relevance: "Manager authorised to offer up to 2 months credit for VIP retention"
+    vip_notes: |
+      Premium VIP customer. 38-month tenure, £12,500 annual value. Losing this
+      customer costs approximately £37,500 over 3 years. Authorise senior agent
+      or manager handling. Retention budget available.
+    churn_notes: |
+      Churn risk score 0.78 (high). Customer explicitly mentioned switching to a
+      competitor. Combined with repeated unresolved contacts, this is a genuine
+      flight risk. Prioritise resolution over process. Authority to offer goodwill
+      credit up to policy limits.
+  follow_up:
+    recommended: true
+    timeframe: "within 24 hours"
+    action: "Personal follow-up call from account manager to confirm resolution and rebuild relationship"
+  confidence: 0.89

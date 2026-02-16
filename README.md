@@ -16,8 +16,20 @@ Open source, production-ready agent templates for [Claude Code](https://code.cla
 | [Customer Service](./customer-service/) | Classifier → Researcher → Drafter → Reviewer | ✅ Ready |
 | [Incident Triage](./incident-triage/) | Classifier → Investigator → Responder → Reviewer | ✅ Ready |
 | [Lead Scoring](./lead-scoring/) | Enricher → Scorer → Qualifier → Router | ✅ Ready |
-
-More coming soon: Code Review, RFP Drafting, Meeting Summaries, Security Log Analysis.
+| [Knowledge Base Q&A](./knowledge-base-qa/) | Query Analyser → Retriever → Synthesiser → Verifier | ✅ Ready |
+| [Sentiment Routing](./sentiment-routing/) | Emotion Detector → Context Assessor → Priority Scorer → Router | ✅ Ready |
+| [Code Review](./code-review/) | Diff Analyser → Bug Scanner → Style Checker → Review Composer | ✅ Ready |
+| [Invoice Processing](./invoice-processing/) | Extractor → Validator → Anomaly Detector → Approver | ✅ Ready |
+| [CV Screening](./cv-screening/) | Parser → Matcher → Assessor → Ranker | ✅ Ready |
+| [HR Policy Q&A](./hr-policy-qa/) | Intent Classifier → Policy Retriever → Response Generator → Compliance Checker | ✅ Ready |
+| [Contract Review](./contract-review/) | Clause Extractor → Risk Assessor → Comparator → Summary Writer | ✅ Ready |
+| [Content Creation](./content-creation/) | Brief Analyser → Research Compiler → Content Writer → Editor | ✅ Ready |
+| [Doc Generation](./doc-generation/) | Code Analyser → Structure Planner → Doc Writer → Quality Reviewer | ✅ Ready |
+| [Quality Assurance](./quality-assurance/) | Data Parser → Pattern Detector → Root Cause Analyser → Report Generator | ✅ Ready |
+| [Regulatory Monitoring](./regulatory-monitoring/) | Feed Scanner → Change Analyser → Impact Assessor → Briefing Writer | ✅ Ready |
+| [Due Diligence](./due-diligence/) | Document Indexer → Risk Extractor → Cross-Referencer → Report Writer | ✅ Ready |
+| [PRD Drafting](./prd-drafting/) | Input Parser → Research Enricher → Spec Writer → Reviewer | ✅ Ready |
+| [Financial Forecasting](./financial-forecasting/) | Data Ingester → Trend Analyser → Forecaster → Narrative Writer | ✅ Ready |
 
 ## How It Works
 

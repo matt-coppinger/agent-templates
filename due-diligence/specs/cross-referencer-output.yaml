@@ -1,0 +1,88 @@
+# Cross-Referencer Sub-Agent Output Spec
+# Identifies contradictions, gaps, and hidden dependencies across document categories
+
+schema:
+  deal_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  total_findings:
+    type: integer
+    required: true
+
+  summary:
+    type: object
+    required: true
+    fields:
+      contradictions: { type: integer }
+      gaps: { type: integer }
+      hidden_dependencies: { type: integer }
+      undisclosed_liabilities: { type: integer }
+      timeline_inconsistencies: { type: integer }
+
+  findings:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        reference: { type: string, required: true, description: "e.g. XREF-001" }
+        type:
+          type: enum
+          required: true
+          values: [contradiction, gap, hidden-dependency, undisclosed-liability, timeline-inconsistency]
+        severity:
+          type: enum
+          required: true
+          values: [critical, material, notable, minor]
+        title: { type: string, required: true }
+        description: { type: string, required: true }
+        source_a:
+          type: object
+          required: true
+          fields:
+            document: { type: string }
+            extract: { type: string, description: "Quote or paraphrase from document A" }
+        source_b:
+          type: object
+          required: true
+          fields:
+            document: { type: string }
+            extract: { type: string, description: "Quote or paraphrase from document B" }
+        related_risks:
+          type: list
+          required: false
+          items: { type: string }
+          description: "References to related RISK entries from risk extractor"
+        recommended_action: { type: string, required: true }
+        notes: { type: string, required: false, description: "Possible innocent explanations or context" }
+
+example:
+  deal_id: "DD-2026-001"
+  timestamp: "2026-02-15T13:00:00Z"
+  total_findings: 7
+  summary:
+    contradictions: 3
+    gaps: 2
+    hidden_dependencies: 1
+    undisclosed_liabilities: 1
+    timeline_inconsistencies: 0
+  findings:
+    - reference: "XREF-001"
+      type: contradiction
+      severity: material
+      title: "Revenue discrepancy between accounts and IM"
+      description: "The information memorandum states FY2025 revenue of £14.2m, but the audited accounts show £12.4m. The £1.8m difference is unexplained."
+      source_a:
+        document: "commercial/information-memorandum.pdf"
+        extract: "Revenue for FY2025 reached £14.2m, representing 18% year-on-year growth"
+      source_b:
+        document: "financial/audited-accounts-2025.pdf"
+        extract: "Revenue: £12,412,000 (2024: £11,890,000)"
+      related_risks: ["RISK-003"]
+      recommended_action: "Request seller explanation; verify whether IM includes unaudited or pro-forma adjustments"
+      notes: "Possible explanation: IM may include pro-forma revenue from an acquisition completed mid-year"

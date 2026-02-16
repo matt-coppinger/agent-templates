@@ -1,0 +1,106 @@
+# Doc Writer Sub-Agent Output Spec
+# Produces the generated documentation with metadata
+
+schema:
+  doc_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  doc_type:
+    type: string
+    required: true
+
+  title:
+    type: string
+    required: true
+
+  content:
+    type: string
+    required: true
+    description: "The full documentation in markdown format"
+
+  sections_written:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        heading: { type: string }
+        word_count: { type: integer }
+        was_regenerated: { type: boolean, description: "True if this section was updated (diff-based)" }
+
+  code_examples:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        function_or_endpoint: { type: string }
+        language: { type: string }
+        example_type: { type: enum, values: [basic-usage, edge-case, error-handling, integration] }
+        lines: { type: integer }
+
+  cross_references_inserted:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        from_section: { type: string }
+        to_target: { type: string }
+        link_text: { type: string }
+
+  diagrams:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        type: { type: enum, values: [flowchart, sequence, class, er, architecture] }
+        format: { type: enum, values: [mermaid, ascii, description] }
+        content: { type: string }
+
+  changelog_entry:
+    type: object
+    required: false
+    fields:
+      date: { type: string }
+      version: { type: string }
+      changes: { type: list, items: { type: string } }
+
+  metadata:
+    type: object
+    required: true
+    fields:
+      total_words: { type: integer }
+      api_coverage: { type: float, description: "Fraction of public API surface documented" }
+      template_used: { type: string }
+      spelling: { type: string, description: "en-GB" }
+
+example:
+  doc_id: "DOC-2026-00042"
+  timestamp: "2026-02-15T10:15:00Z"
+  doc_type: api-reference
+  title: "Users API Reference"
+  content: "# Users API Reference\n\n## Overview\n\n..."
+  sections_written:
+    - heading: "Overview"
+      word_count: 142
+      was_regenerated: false
+    - heading: "Endpoints"
+      word_count: 830
+      was_regenerated: true
+  code_examples:
+    - function_or_endpoint: "GET /users/{user_id}"
+      language: python
+      example_type: basic-usage
+      lines: 8
+  metadata:
+    total_words: 1180
+    api_coverage: 0.88
+    template_used: "knowledge-base/templates/api-reference-template.md"
+    spelling: "en-GB"

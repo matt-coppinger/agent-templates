@@ -1,0 +1,133 @@
+# Policy Retriever Output Spec
+# Finds relevant HR policy sections, rules, and entitlements
+
+schema:
+  query_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  sources:
+    type: list
+    required: true
+    min_items: 0
+    max_items: 5
+    items:
+      type: object
+      fields:
+        title:
+          type: string
+          required: true
+          description: Policy document or section title
+        path:
+          type: string
+          required: true
+          description: File path to the source document
+        relevance_score:
+          type: float
+          required: true
+          min: 0.0
+          max: 1.0
+        excerpt:
+          type: string
+          required: true
+          description: Most relevant passage (max 500 chars)
+        source_type:
+          type: enum
+          required: true
+          values: [policy, benefits-guide, procedure, contact-directory, statutory-reference]
+
+  applicable_policies:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        policy_name:
+          type: string
+          required: true
+        summary:
+          type: string
+          required: true
+          description: One-sentence summary of the relevant policy
+        statutory_minimum:
+          type: string
+          required: false
+          description: UK statutory entitlement (if applicable)
+        company_enhancement:
+          type: string
+          required: false
+          description: Where the company exceeds the statutory minimum
+        constraints:
+          type: list
+          required: false
+          items:
+            type: string
+          description: Specific rules, limits, or conditions
+
+  relevant_contacts:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        name: { type: string }
+        role: { type: string }
+        email: { type: string }
+        when_to_contact: { type: string }
+
+  suggested_resolution_path:
+    type: enum
+    required: true
+    values:
+      - direct-answer
+      - partial-answer
+      - needs-context
+      - escalate-hr
+      - refer-external
+    description: Recommended handling approach based on research
+
+  retrieval_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Confidence that sufficient policy information was found
+
+  gaps:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Information gaps — policies not found or areas not covered
+
+# Example output
+example:
+  query_id: "HRQ-2026-00042"
+  timestamp: "2026-02-15T10:15:03Z"
+  sources:
+    - title: "Annual Leave Policy"
+      path: "knowledge-base/policies/annual-leave.md"
+      relevance_score: 0.96
+      excerpt: "Employees may carry over up to 5 days of unused annual leave to the following holiday year, subject to line manager approval. Carried-over leave must be taken by 31 March."
+      source_type: policy
+  applicable_policies:
+    - policy_name: "Annual Leave Policy — Carryover"
+      summary: "Up to 5 days carryover permitted with manager approval"
+      statutory_minimum: "Under the Working Time Regulations 1998, the 4 weeks (20 days) statutory leave cannot normally be carried over"
+      company_enhancement: "Company allows carryover of up to 5 days from the additional contractual entitlement"
+      constraints:
+        - "Maximum 5 days carryover"
+        - "Requires line manager approval"
+        - "Must be taken by 31 March of the following year"
+  relevant_contacts:
+    - name: "Line Manager"
+      role: "Approver"
+      email: ""
+      when_to_contact: "To request carryover approval"
+  suggested_resolution_path: direct-answer
+  retrieval_confidence: 0.93
+  gaps: []

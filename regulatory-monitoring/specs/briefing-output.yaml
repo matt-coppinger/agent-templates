@@ -1,0 +1,116 @@
+# Briefing Writer Sub-Agent Output Spec
+# Produces executive briefing with prioritised actions and compliance timeline
+
+schema:
+  run_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  briefing_date:
+    type: date
+    required: true
+
+  executive_summary:
+    type: string
+    required: true
+    description: "2-3 sentence overview for senior leadership"
+
+  statistics:
+    type: object
+    required: true
+    fields:
+      total_new_changes: { type: integer }
+      by_domain:
+        type: object
+        description: "Count of changes per domain"
+      by_urgency:
+        type: object
+        description: "Count of changes per urgency level"
+      critical_items: { type: integer }
+
+  urgent_items:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        change_id: { type: string }
+        title: { type: string }
+        urgency: { type: enum, values: [critical, high] }
+        deadline: { type: date }
+        summary: { type: string }
+        recommended_action: { type: string }
+
+  prioritised_changes:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        rank: { type: integer }
+        change_id: { type: string }
+        title: { type: string }
+        domain: { type: list, items: { type: string } }
+        urgency: { type: string }
+        impact_level: { type: string }
+        priority_score: { type: integer }
+        one_line_summary: { type: string }
+
+  action_items:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        action_id: { type: string, description: "e.g. ACT-001" }
+        what: { type: string }
+        owner: { type: string, description: "Department or role" }
+        deadline: { type: date }
+        effort: { type: enum, values: [critical, high, medium, low] }
+        related_change: { type: string, description: "change_id reference" }
+        dependencies: { type: list, required: false, items: { type: string } }
+
+  compliance_timeline:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        date: { type: date }
+        description: { type: string }
+        type: { type: enum, values: [new-change-effective, transition-end, consultation-deadline, existing-deadline, milestone] }
+        related_change: { type: string, required: false }
+    description: "Chronological list of upcoming dates (next 90 days)"
+
+  recommendations:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        recommendation: { type: string }
+        rationale: { type: string }
+        priority: { type: enum, values: [high, medium, low] }
+
+  briefing_text:
+    type: string
+    required: true
+    description: "Full formatted briefing in markdown for human reading"
+
+example:
+  run_id: "REG-2026-02-15-001"
+  timestamp: "2026-02-15T09:00:00Z"
+  briefing_date: "2026-02-15"
+  executive_summary: "Two data protection changes detected this week. The ICO's updated AI guidance requires a cross-functional audit of automated decision-making systems by June 2026. A separate consultation on breach notification thresholds is open until April — we recommend submitting a response."
+  statistics:
+    total_new_changes: 2
+    by_domain:
+      data-protection: 2
+    by_urgency:
+      medium: 1
+      low: 1
+    critical_items: 0

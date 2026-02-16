@@ -1,0 +1,76 @@
+# Invoice & Expense Processing Pipeline Configuration
+
+pipeline:
+  name: invoice-processing
+  version: "1.0"
+  description: Multi-agent invoice and expense processing with human approval
+
+# Model recommendations per sub-agent
+models:
+  extractor: claude-haiku         # Fast, cheap field extraction
+  validator: claude-haiku         # Fast policy checks
+  anomaly_detector: claude-sonnet # Nuanced pattern recognition
+  approver: claude-sonnet         # Quality reasoning for recommendations
+
+# Currency and tax
+finance:
+  base_currency: GBP              # Default currency for all amounts
+  vat_rate: 0.20                   # Standard UK VAT rate (20%)
+  reduced_vat_rate: 0.05           # Reduced rate (5%)
+  zero_rated_categories:           # Zero-rated VAT categories
+    - books
+    - children-clothing
+    - food-essentials
+
+# Approval thresholds (in base currency)
+approval_thresholds:
+  auto_approve_limit: 50           # Below this: auto-approve (if enabled)
+  line_manager: 500                # Up to £500: line manager
+  department_head: 2500            # Up to £2,500: department head
+  finance_director: 10000          # Up to £10,000: finance director
+  cfo: 50000                       # Up to £50,000: CFO
+  board: null                      # Above £50,000: board approval
+
+# Duplicate detection
+duplicate_detection:
+  enabled: true
+  window_days: 90                  # Look back 90 days for duplicates
+  match_fields:                    # Fields to compare
+    - vendor_name
+    - total_amount
+    - invoice_date
+
+# GL code mapping (default categories)
+gl_codes:
+  travel: "6100"
+  accommodation: "6110"
+  meals-entertainment: "6120"
+  office-supplies: "6200"
+  software-licences: "6300"
+  professional-services: "6400"
+  marketing: "6500"
+  equipment: "7100"
+  training: "6600"
+  telecommunications: "6210"
+  utilities: "6220"
+  insurance: "6700"
+  miscellaneous: "6900"
+
+# Anomaly detection
+anomaly:
+  amount_threshold_multiplier: 3.0  # Flag if amount > 3x category average
+  frequency_window_days: 30         # Window for frequency analysis
+  max_same_vendor_per_month: 10     # Flag if vendor appears more than this
+
+# Human review
+review:
+  always_review: true               # Set false to auto-approve low-risk items
+  auto_approve_confidence: 0.95     # Confidence threshold for auto-approve
+  show_anomaly_details: true        # Show anomaly analysis to reviewer
+  show_journal_entry: true          # Show prepared journal entry to reviewer
+
+# Knowledge base
+knowledge_base:
+  path: ./knowledge-base/
+  policies_path: ./knowledge-base/policies/
+  reference_path: ./knowledge-base/reference/

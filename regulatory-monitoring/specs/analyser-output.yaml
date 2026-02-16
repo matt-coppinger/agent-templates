@@ -1,0 +1,112 @@
+# Change Analyser Sub-Agent Output Spec
+# Produces detailed analysis of each regulatory change against current requirements
+
+schema:
+  run_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  analyses:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        change_id:
+          type: string
+          description: "Matches change_id from scanner output"
+        title:
+          type: string
+
+        current_requirements:
+          type: string
+          description: "Summary of what the current regulation requires"
+
+        new_requirements:
+          type: string
+          description: "Summary of what the change introduces or modifies"
+
+        substantive_change:
+          type: boolean
+          description: "True if this is a material change, false if administrative/technical"
+
+        change_summary:
+          type: string
+          description: "Plain-English summary of what's different"
+
+        timeline:
+          type: object
+          fields:
+            effective_date: { type: date, required: false }
+            transition_period: { type: string, required: false, description: "e.g. '6 months from effective date'" }
+            key_milestones:
+              type: list
+              required: false
+              items:
+                type: object
+                fields:
+                  date: { type: date }
+                  description: { type: string }
+
+        penalties:
+          type: object
+          required: false
+          fields:
+            max_penalty: { type: string, description: "e.g. '£17.5m or 4% of annual turnover'" }
+            penalty_changed: { type: boolean, description: "Has the penalty level changed?" }
+            enforcement_approach: { type: string, description: "How actively is this enforced?" }
+
+        interactions:
+          type: list
+          required: false
+          items:
+            type: object
+            fields:
+              regulation: { type: string, description: "Related regulation" }
+              relationship: { type: enum, values: [supplements, conflicts, supersedes, amends] }
+              notes: { type: string }
+
+        comparison_confidence:
+          type: enum
+          values: [high, medium, low]
+          description: "Confidence in the analysis based on available baseline"
+
+        baseline_gaps:
+          type: list
+          required: false
+          items:
+            type: string
+          description: "Areas where baseline information was missing"
+
+example:
+  run_id: "REG-2026-02-15-001"
+  timestamp: "2026-02-15T08:15:00Z"
+  analyses:
+    - change_id: "REG-2026-02-15-001-001"
+      title: "Updated guidance on AI and automated decision-making under UK GDPR"
+      current_requirements: "Article 22 UK GDPR requires meaningful human involvement in significant automated decisions. Organisations must provide individuals with information about the logic involved."
+      new_requirements: "The updated guidance specifies that human review must be substantive (not rubber-stamping), introduces a risk-based framework for AI transparency, and requires documented AI impact assessments for high-risk decisions."
+      substantive_change: true
+      change_summary: "Tightens the definition of 'meaningful human review' for AI decisions and introduces mandatory AI impact assessments. Organisations using AI for decisions about individuals will need to review their processes."
+      timeline:
+        effective_date: "2026-03-01"
+        transition_period: "3 months grace period for existing systems"
+        key_milestones:
+          - date: "2026-03-01"
+            description: "Guidance takes effect"
+          - date: "2026-06-01"
+            description: "Grace period ends — full compliance expected"
+      penalties:
+        max_penalty: "£17.5m or 4% of annual global turnover"
+        penalty_changed: false
+        enforcement_approach: "ICO has signalled AI as an enforcement priority for 2026-27"
+      interactions:
+        - regulation: "AI Act (retained EU law provisions)"
+          relationship: supplements
+          notes: "Aligns with but goes beyond the AI Act's transparency requirements"
+      comparison_confidence: high
+      baseline_gaps: []

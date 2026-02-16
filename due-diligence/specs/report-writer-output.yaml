@@ -1,0 +1,111 @@
+# Report Writer Sub-Agent Output Spec
+# Structured DD report with executive summary, risk register, and recommendations
+
+schema:
+  deal_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  report_version: { type: string, required: true, description: "e.g. 1.0-draft" }
+
+  executive_summary:
+    type: object
+    required: true
+    fields:
+      overall_risk_rating:
+        type: enum
+        values: [high, medium, low]
+      summary_text: { type: string, description: "3-5 paragraph overview, max 500 words" }
+      deal_breaker_count: { type: integer }
+      red_findings: { type: integer }
+      amber_findings: { type: integer }
+      green_findings: { type: integer }
+      cross_ref_findings: { type: integer }
+      data_room_completeness: { type: float }
+
+  risk_register:
+    type: list
+    required: true
+    description: "Consolidated risk register sorted by severity"
+    items:
+      type: object
+      fields:
+        reference: { type: string }
+        category: { type: string }
+        title: { type: string }
+        rag_status: { type: enum, values: [red, amber, green] }
+        deal_breaker: { type: boolean }
+        source_documents: { type: list, items: { type: string } }
+        recommended_action: { type: string }
+
+  deal_breakers:
+    type: list
+    required: true
+    description: "Dedicated section for deal-breaker findings"
+    items:
+      type: object
+      fields:
+        reference: { type: string }
+        title: { type: string }
+        full_context: { type: string }
+        evidence: { type: list, items: { type: string } }
+        immediate_action: { type: string }
+
+  completeness_assessment:
+    type: object
+    required: true
+    fields:
+      overall_percentage: { type: float }
+      category_summary:
+        type: list
+        items:
+          type: object
+          fields:
+            category: { type: string }
+            percentage: { type: float }
+            critical_gaps: { type: list, items: { type: string } }
+
+  cross_referencing_summary:
+    type: object
+    required: true
+    fields:
+      total_findings: { type: integer }
+      critical_findings: { type: list, items: { type: string } }
+      material_findings: { type: list, items: { type: string } }
+
+  recommendations:
+    type: object
+    required: true
+    fields:
+      warranties:
+        type: list
+        items:
+          type: object
+          fields:
+            area: { type: string }
+            recommendation: { type: string }
+            related_risks: { type: list, items: { type: string } }
+      conditions_precedent:
+        type: list
+        items: { type: string }
+      price_adjustments:
+        type: list
+        items:
+          type: object
+          fields:
+            reason: { type: string }
+            estimated_impact: { type: string }
+      further_investigation:
+        type: list
+        items:
+          type: object
+          fields:
+            area: { type: string }
+            reason: { type: string }
+            specialist_required: { type: string, description: "e.g. tax adviser, environmental consultant" }
+
+  disclaimer: { type: string, required: true }

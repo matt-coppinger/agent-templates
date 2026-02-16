@@ -1,0 +1,98 @@
+# Quality Reviewer Sub-Agent Output Spec
+# Quality assessment of generated documentation
+
+schema:
+  doc_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  verdict:
+    type: enum
+    required: true
+    values: [pass, revise, escalate]
+
+  scores:
+    type: object
+    required: true
+    fields:
+      technical_accuracy: { type: float, min: 0.0, max: 1.0 }
+      completeness: { type: float, min: 0.0, max: 1.0 }
+      readability: { type: float, min: 0.0, max: 1.0 }
+      consistency: { type: float, min: 0.0, max: 1.0 }
+      cross_references: { type: float, min: 0.0, max: 1.0 }
+      overall: { type: float, min: 0.0, max: 1.0 }
+
+  code_coverage:
+    type: object
+    required: true
+    fields:
+      functions_documented: { type: integer }
+      functions_total: { type: integer }
+      endpoints_documented: { type: integer }
+      endpoints_total: { type: integer }
+      types_documented: { type: integer }
+      types_total: { type: integer }
+      coverage_ratio: { type: float }
+
+  issues:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        type:
+          type: enum
+          values:
+            - inaccurate-signature
+            - missing-documentation
+            - broken-reference
+            - incorrect-example
+            - style-violation
+            - missing-error-docs
+            - stale-content
+            - spelling-error
+        severity: { type: enum, values: [blocker, major, minor] }
+        location: { type: string, description: "Section or line reference" }
+        description: { type: string }
+        suggestion: { type: string }
+
+  revision_notes:
+    type: string
+    required: false
+    description: "Specific instructions for the doc-writer if verdict is revise"
+
+  human_summary:
+    type: string
+    required: true
+    description: "2-3 sentence summary for the human reviewer"
+
+example:
+  doc_id: "DOC-2026-00042"
+  timestamp: "2026-02-15T10:20:00Z"
+  verdict: pass
+  scores:
+    technical_accuracy: 0.92
+    completeness: 0.85
+    readability: 0.88
+    consistency: 0.90
+    cross_references: 0.80
+    overall: 0.87
+  code_coverage:
+    functions_documented: 7
+    functions_total: 8
+    endpoints_documented: 5
+    endpoints_total: 5
+    types_documented: 3
+    types_total: 4
+    coverage_ratio: 0.88
+  issues:
+    - type: missing-documentation
+      severity: minor
+      location: "Functions section"
+      description: "Internal helper _validate_email not documented"
+      suggestion: "Add brief note or mark as internal"
+  human_summary: "Pass. Strong API reference covering 88% of the public surface. One minor gap: internal helper function undocumented. Code examples are accurate and well-structured."

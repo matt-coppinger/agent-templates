@@ -1,0 +1,124 @@
+# Validator Sub-Agent Output Spec
+# Produces policy validation results for an extracted invoice
+
+schema:
+  invoice_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of validation
+
+  overall_status:
+    type: enum
+    required: true
+    values: [pass, warning, fail, critical]
+    description: |
+      pass: all checks passed
+      warning: minor issues noted
+      fail: policy violations found
+      critical: suspected duplicate or exceeds maximum limit
+
+  checks:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        check_name:
+          type: string
+          description: "Name of the validation check"
+        status:
+          type: enum
+          values: [pass, info, warning, error, critical]
+        detail:
+          type: string
+          description: "Human-readable explanation"
+        reference:
+          type: string
+          required: false
+          description: "Policy section or document reference"
+
+  approved_vendor_status:
+    type: object
+    required: true
+    fields:
+      is_approved: { type: boolean }
+      vendor_name: { type: string }
+      notes: { type: string, required: false }
+
+  gl_code_validation:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        line_item: { type: string }
+        suggested_code: { type: string }
+        validated_code: { type: string }
+        status: { type: enum, values: [valid, corrected, unknown] }
+        notes: { type: string, required: false }
+
+  duplicate_check:
+    type: object
+    required: true
+    fields:
+      is_duplicate: { type: boolean }
+      matching_invoices: { type: list, items: { type: string }, required: false }
+      confidence: { type: float, required: false }
+
+  approval_level_required:
+    type: string
+    required: true
+    description: "Based on amount thresholds: line_manager, department_head, finance_director, cfo, board"
+
+  critical_violations:
+    type: list
+    required: false
+    items:
+      type: string
+    description: "List of critical violations that should short-circuit the pipeline"
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+# Example output
+example:
+  invoice_id: "INV-2026-00142"
+  timestamp: "2026-02-15T10:01:00Z"
+  overall_status: warning
+  checks:
+    - check_name: "spending_limit"
+      status: pass
+      detail: "£540.00 is within department head approval threshold (£2,500)"
+    - check_name: "approved_vendor"
+      status: pass
+      detail: "Acme Office Supplies Ltd is on the approved vendor list"
+    - check_name: "vat_treatment"
+      status: pass
+      detail: "Standard rate VAT (20%) correctly applied to office supplies"
+    - check_name: "receipt_attached"
+      status: warning
+      detail: "Invoice text provided but original document not verified"
+      reference: "Expense Policy §3.2"
+  approved_vendor_status:
+    is_approved: true
+    vendor_name: "Acme Office Supplies Ltd"
+  gl_code_validation:
+    - line_item: "A4 printer paper"
+      suggested_code: "6200"
+      validated_code: "6200"
+      status: valid
+    - line_item: "Toner cartridges"
+      suggested_code: "6200"
+      validated_code: "6200"
+      status: valid
+  duplicate_check:
+    is_duplicate: false
+  approval_level_required: "department_head"
+  confidence: 0.91

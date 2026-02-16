@@ -1,0 +1,104 @@
+# Assessor Sub-Agent Output Spec
+# Holistic candidate assessment beyond requirements matching
+
+schema:
+  candidate_id:
+    type: string
+    required: true
+
+  batch_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  career_trajectory:
+    type: object
+    required: true
+    fields:
+      pattern: { type: enum, values: [strong-upward, steady, lateral, unclear, declining] }
+      summary: { type: string, description: "2-3 sentence trajectory description" }
+      progression_evidence: { type: list, items: { type: string } }
+
+  role_fit_score:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Holistic role fit beyond requirements matching
+
+  role_fit_reasoning:
+    type: string
+    required: true
+    description: Detailed reasoning for the role fit score
+
+  red_flags:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        type: { type: enum, values: [employment-gap, job-hopping, inconsistency, overqualification, other] }
+        description: { type: string }
+        severity: { type: enum, values: [info, minor, notable] }
+    description: Empty list if no flags
+
+  positive_signals:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        type: { type: enum, values: [quantified-achievement, recognition, continuous-learning, leadership, community, other] }
+        description: { type: string }
+
+  cultural_signals:
+    type: object
+    required: true
+    fields:
+      communication_quality: { type: enum, values: [excellent, good, adequate, poor] }
+      collaboration_evidence: { type: boolean }
+      values_indicators: { type: list, items: { type: string } }
+    description: Soft signals only — not used in scoring
+
+  bias_check:
+    type: object
+    required: true
+    fields:
+      passed: { type: boolean }
+      concerns: { type: list, items: { type: string } }
+    description: Self-check for potential bias in this assessment
+
+  assessment_summary:
+    type: string
+    required: true
+    description: 3-4 sentence overall assessment
+
+example:
+  candidate_id: "CAND-001"
+  batch_id: "BATCH-2026-02-15"
+  timestamp: "2026-02-15T10:02:00Z"
+  career_trajectory:
+    pattern: strong-upward
+    summary: "Clear progression from mid-level to senior engineer over 4 years, with increasing scope of responsibility and team leadership."
+    progression_evidence:
+      - "Promoted from Software Engineer to Senior Software Engineer within 2 years"
+      - "Team size managed grew from 0 to 5"
+  role_fit_score: 0.82
+  role_fit_reasoning: "Strong technical background with demonstrated leadership. Industry experience aligns well. Slight concern about transition from pure engineering to a more architecture-focused role."
+  red_flags: []
+  positive_signals:
+    - type: quantified-achievement
+      description: "Reduced infrastructure costs by £120k/year — demonstrates business awareness"
+    - type: leadership
+      description: "Mentored 3 junior developers and led team of 5"
+  cultural_signals:
+    communication_quality: good
+    collaboration_evidence: true
+    values_indicators: ["mentoring focus", "cost awareness"]
+  bias_check:
+    passed: true
+    concerns: []
+  assessment_summary: "A strong candidate with clear upward career trajectory and demonstrated technical leadership. Quantified achievements show business awareness beyond pure engineering. Good cultural fit signals through mentoring and collaboration evidence."

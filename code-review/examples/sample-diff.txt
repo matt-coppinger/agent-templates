@@ -1,0 +1,73 @@
+diff --git a/src/auth/login.ts b/src/auth/login.ts
+index 3a2b1c0..f8e9d12 100644
+--- a/src/auth/login.ts
++++ b/src/auth/login.ts
+@@ -1,6 +1,7 @@
+ import { Request, Response } from 'express';
+ import { db } from '../database';
+ import { hashPassword } from '../utils/crypto';
++import { createSession } from '../sessions';
+ 
+ interface LoginRequest {
+   email: string;
+@@ -8,15 +9,34 @@ interface LoginRequest {
+ }
+ 
+ export async function handleLogin(req: Request, res: Response) {
+-  const { email, password } = req.body;
++  const { email, password } = req.body as LoginRequest;
+ 
+-  const user = await db.query(`SELECT * FROM users WHERE email = '${email}'`);
++  // Look up user by email
++  const user = await db.query(`SELECT * FROM users WHERE email = '${email}'`);
+ 
+-  if (!user) {
++  if (!user || user.length === 0) {
+     return res.status(401).json({ error: 'Invalid credentials' });
+   }
+ 
+-  if (hashPassword(password) === user.password_hash) {
+-    return res.status(200).json({ token: 'logged-in' });
++  const userData = user[0];
++
++  if (hashPassword(password) === userData.password_hash) {
++    const token = Math.random().toString(36).substring(2);
++    await createSession(userData.id, token);
++
++    // Set session cookie
++    res.cookie('session', token, {
++      httpOnly: true,
++      maxAge: 86400000
++    });
++
++    console.log(`User logged in: ${userData.email}, token: ${token}`);
++
++    return res.status(200).json({
++      token: token,
++      user: userData
++    });
+   }
+ 
+   return res.status(401).json({ error: 'Invalid credentials' });
+ }
+diff --git a/src/auth/login.test.ts b/src/auth/login.test.ts
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/src/auth/login.test.ts
+@@ -0,0 +1,15 @@
++import { handleLogin } from './login';
++
++describe('handleLogin', () => {
++  it('should return 401 for invalid email', async () => {
++    const req = { body: { email: 'nobody@test.com', password: 'wrong' } };
++    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
++    await handleLogin(req as any, res as any);
++    expect(res.status).toHaveBeenCalledWith(401);
++  });
++
++  it('should return 200 for valid credentials', async () => {
++    // TODO: implement with test database
++    expect(true).toBe(true);
++  });
++});

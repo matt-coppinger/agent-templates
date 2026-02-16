@@ -1,0 +1,55 @@
+ACME HOLDINGS LTD
+Profit & Loss Statement
+Period: January 2026
+
+                              Actual      Budget    Prior Year
+                              Jan 2026    Jan 2026   Jan 2025
+                              --------    --------   --------
+REVENUE
+  Product Sales                 875,000     820,000    750,000
+  Service Revenue               325,000     340,000    310,000
+  Licence Fees                   50,000      40,000     40,000
+                              --------    --------   --------
+Total Revenue                 1,250,000   1,200,000  1,100,000
+
+COST OF GOODS SOLD
+  Materials                     225,000     230,000    215,000
+  Direct Labour                 150,000     145,000    140,000
+  Manufacturing Overhead         95,000      85,000     80,000
+                              --------    --------   --------
+Total COGS                      470,000     460,000    435,000
+
+GROSS MARGIN                    780,000     740,000    665,000
+Gross Margin %                    62.4%       61.7%      60.5%
+
+OPERATING EXPENSES
+  Salaries & Wages              285,000     250,000    230,000
+  Rent & Utilities               42,000      40,000     38,000
+  Marketing & Advertising        55,000      50,000     45,000
+  Software & Licences            38,000      18,000     15,000
+  Professional Fees              22,000      20,000     18,000
+  Travel & Entertainment         15,000      18,000     12,000
+  Depreciation                   28,000      28,000     26,000
+  Other Operating Costs          24,000      26,000     22,000
+                              --------    --------   --------
+Total Operating Expenses        509,000     450,000    406,000
+
+EBITDA                          299,000     318,000    285,000
+EBITDA Margin %                   23.9%       26.5%      25.9%
+
+Depreciation & Amortisation     (28,000)    (28,000)   (26,000)
+Interest Expense                 (8,000)     (8,000)    (10,000)
+                              --------    --------   --------
+Profit Before Tax               263,000     282,000    249,000
+
+Corporation Tax (25%)           (65,750)    (70,500)   (62,250)
+                              --------    --------   --------
+NET PROFIT                      197,250     211,500    186,750
+Net Margin %                      15.8%       17.6%      17.0%
+
+---
+Additional Information:
+  Headcount (FTE):                  52          48         45
+  Cash Flow from Operations:    285,000     300,000    265,000
+  Capital Expenditure:          (45,000)    (40,000)   (35,000)
+  Free Cash Flow:               240,000     260,000    230,000

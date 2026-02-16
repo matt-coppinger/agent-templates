@@ -1,0 +1,86 @@
+# Research Enricher Sub-Agent Output Spec
+# Produces cross-referenced context from existing documentation
+
+schema:
+  spec_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  sources:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        path: { type: string, description: "File path within knowledge-base/" }
+        title: { type: string }
+        relevance: { type: float, min: 0.0, max: 1.0 }
+        excerpt: { type: string, description: "Most relevant excerpt, max 500 chars" }
+        relation: { type: enum, values: [overlapping-spec, technical-constraint, design-reference, tech-debt, dependency] }
+
+  requirement_enrichments:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        requirement_id: { type: string, description: "References REQ-xxx from parser output" }
+        related_docs: { type: list, items: { type: string } }
+        technical_notes: { type: string }
+        conflicts: { type: list, items: { type: string } }
+        dependencies: { type: list, items: { type: string } }
+
+  gaps:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        area: { type: string }
+        description: { type: string }
+        impact: { type: enum, values: [blocker, warning, informational] }
+
+  tech_debt_flags:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        system: { type: string }
+        issue: { type: string }
+        relevance: { type: string, description: "How this tech debt affects the proposed feature" }
+
+  research_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+example:
+  spec_id: "PRD-2026-00042"
+  timestamp: "2026-02-15T10:05:00Z"
+  sources:
+    - path: "knowledge-base/existing-prds/reporting-dashboard-v2.md"
+      title: "Reporting Dashboard v2 PRD"
+      relevance: 0.9
+      excerpt: "The reporting API v2 supports single-report PDF generation via GET /reports/{id}/export. No batch endpoint exists."
+      relation: overlapping-spec
+  requirement_enrichments:
+    - requirement_id: "REQ-001"
+      related_docs: ["reporting-dashboard-v2.md"]
+      technical_notes: "Current API only supports single-report export. Batch endpoint needed."
+      conflicts: []
+      dependencies: ["Reporting API team", "Infrastructure (file storage for ZIP generation)"]
+  gaps:
+    - area: "API batch endpoint"
+      description: "No existing batch export capability in reporting API v2"
+      impact: blocker
+  tech_debt_flags:
+    - system: "Reporting API"
+      issue: "PDF generation uses synchronous processing, may timeout for large reports"
+      relevance: "Bulk export will amplify existing timeout issues"
+  research_confidence: 0.78

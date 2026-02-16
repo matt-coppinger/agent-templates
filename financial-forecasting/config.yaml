@@ -1,0 +1,109 @@
+# Financial Forecasting & Variance Analysis Pipeline Configuration
+
+pipeline:
+  name: financial-forecasting
+  version: "1.0"
+  description: Multi-agent financial forecasting and variance analysis with management commentary
+
+# Model recommendations per sub-agent
+models:
+  data_ingester: claude-haiku      # Fast, cheap data parsing
+  trend_analyser: claude-sonnet    # Good reasoning for variance analysis
+  forecaster: claude-sonnet        # Complex scenario modelling
+  narrative_writer: claude-sonnet  # Quality management writing
+
+# Currency and locale
+locale:
+  currency: GBP
+  currency_symbol: "£"
+  number_format: "1,234.56"        # Thousands separator and decimal
+  date_format: "DD/MM/YYYY"
+  language: en-GB
+
+# Materiality thresholds — variances below these are not flagged
+materiality:
+  # Percentage thresholds (of budget/prior period)
+  revenue_pct: 5.0                 # Flag revenue variances > 5%
+  cost_pct: 10.0                   # Flag cost variances > 10%
+  default_pct: 10.0                # Default for other line items
+
+  # Absolute thresholds (in currency units) — whichever is breached first
+  revenue_abs: 50000               # Flag revenue variances > £50k
+  cost_abs: 25000                  # Flag cost variances > £25k
+  default_abs: 10000               # Default for other line items
+
+  # RAG status thresholds (% of budget)
+  rag:
+    green_max: 5.0                 # Within 5% = green
+    amber_max: 15.0                # 5-15% = amber
+    # Above 15% = red
+
+# Forecast settings
+forecast:
+  horizon_months: 12               # How far forward to project
+  default_method: trend-extrapolation  # trend-extrapolation | moving-average | seasonal-decomposition
+  seasonal_adjustment: true        # Apply seasonal patterns
+  confidence_intervals: [0.50, 0.80, 0.95]  # Confidence levels to calculate
+
+  # Scenario definitions
+  scenarios:
+    best:
+      label: "Best Case"
+      description: "Favourable conditions — strong growth, cost efficiencies realised"
+      revenue_multiplier: 1.10     # +10% on base revenue forecast
+      cost_multiplier: 0.95        # -5% on base cost forecast
+    base:
+      label: "Base Case"
+      description: "Most likely outcome — trends continue, no major surprises"
+      revenue_multiplier: 1.00
+      cost_multiplier: 1.00
+    worst:
+      label: "Worst Case"
+      description: "Adverse conditions — revenue pressure, cost overruns"
+      revenue_multiplier: 0.90     # -10% on base revenue forecast
+      cost_multiplier: 1.10        # +10% on base cost forecast
+
+# KPI extraction
+kpis:
+  primary:
+    - revenue
+    - cost_of_goods_sold
+    - gross_margin
+    - gross_margin_pct
+    - operating_expenses
+    - ebitda
+    - ebitda_margin_pct
+    - net_profit
+    - net_margin_pct
+  secondary:
+    - cash_flow_from_operations
+    - capex
+    - free_cash_flow
+    - headcount
+    - revenue_per_head
+
+# Report settings
+reports:
+  types:
+    - monthly-variance
+    - quarterly-forecast
+    - annual-budget-review
+  max_commentary_words: 1500       # Max words for narrative section
+  include_waterfall: true          # Generate waterfall analysis for key variances
+  include_charts_description: true # Describe charts in text (no image generation)
+
+# Data quality
+data_quality:
+  min_score_to_proceed: 0.5        # Below this, pause for human review
+  warn_score: 0.7                  # Below this, add warnings to output
+  required_periods: 3              # Minimum periods needed for trend analysis
+  required_fields:                 # Must be present in input data
+    - revenue
+    - total_costs
+
+# Human review
+review:
+  always_review: true              # Always require human sign-off
+  show_assumptions: true           # Show forecast assumptions to reviewer
+  show_data_quality: true          # Show data quality assessment
+  show_confidence_intervals: true  # Show forecast confidence ranges

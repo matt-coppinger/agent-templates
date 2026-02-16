@@ -1,0 +1,119 @@
+# Matcher Sub-Agent Output Spec
+# Scores a parsed CV against job requirements
+
+schema:
+  candidate_id:
+    type: string
+    required: true
+
+  batch_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  job_spec_reference:
+    type: string
+    required: true
+    description: Filename of the job specification used
+
+  must_have_results:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        requirement: { type: string }
+        verdict: { type: enum, values: [met, partial, unmet] }
+        evidence: { type: string, description: "Specific evidence from CV supporting verdict" }
+
+  must_have_score:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Fraction of must-haves met (partial = 0.5)
+
+  passes_must_have_threshold:
+    type: boolean
+    required: true
+    description: Whether candidate meets the minimum must-have threshold from config
+
+  nice_to_have_results:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        requirement: { type: string }
+        verdict: { type: enum, values: [met, partial, unmet] }
+        evidence: { type: string }
+
+  nice_to_have_score:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+  experience_score:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Score based on relevant experience vs required range
+
+  experience_detail:
+    type: object
+    required: true
+    fields:
+      required_min_years: { type: float }
+      required_max_years: { type: float }
+      candidate_relevant_years: { type: float }
+
+  skills_gap:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        skill: { type: string }
+        severity: { type: enum, values: [critical, minor] }
+        transferable_skills: { type: list, items: { type: string }, required: false }
+    description: Skills required but not found in CV
+
+  overall_match_summary:
+    type: string
+    required: true
+    description: One-paragraph summary of the match quality
+
+example:
+  candidate_id: "CAND-001"
+  batch_id: "BATCH-2026-02-15"
+  timestamp: "2026-02-15T10:01:00Z"
+  job_spec_reference: "sample-job-spec.md"
+  must_have_results:
+    - requirement: "5+ years software engineering experience"
+      verdict: met
+      evidence: "6.0 years relevant experience across two senior roles"
+    - requirement: "Python proficiency"
+      verdict: met
+      evidence: "Python listed as primary technical skill"
+  must_have_score: 0.875
+  passes_must_have_threshold: true
+  nice_to_have_results:
+    - requirement: "Experience with Kubernetes"
+      verdict: met
+      evidence: "Kubernetes listed in technical skills"
+  nice_to_have_score: 0.75
+  experience_score: 0.95
+  experience_detail:
+    required_min_years: 5.0
+    required_max_years: 10.0
+    candidate_relevant_years: 6.0
+  skills_gap:
+    - skill: "GraphQL"
+      severity: minor
+      transferable_skills: ["REST API design"]
+  overall_match_summary: "Strong match on core requirements with 6 years of relevant experience. Minor gap in GraphQL but has strong API design background."

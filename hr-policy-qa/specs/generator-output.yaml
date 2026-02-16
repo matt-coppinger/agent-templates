@@ -1,0 +1,123 @@
+# Response Generator Output Spec
+# Produces an empathetic, clear answer with policy citations and action steps
+
+schema:
+  query_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  response:
+    type: object
+    required: true
+    fields:
+      greeting:
+        type: string
+        required: true
+        description: Warm, personalised greeting
+
+      body:
+        type: string
+        required: true
+        description: |
+          Main answer body. Must:
+          - Acknowledge the employee's question empathetically
+          - Provide clear, direct answer with policy citations
+          - Distinguish statutory entitlements from company enhancements
+          - Include action steps
+          - Use British English throughout
+          - Stay under 400 words
+
+      action_steps:
+        type: list
+        required: true
+        items:
+          type: object
+          fields:
+            step: { type: string, required: true }
+            contact: { type: string, required: false }
+            deadline: { type: string, required: false }
+            mandatory: { type: boolean, required: true }
+
+      closing:
+        type: string
+        required: true
+        description: Supportive sign-off matching configured tone
+
+      internal_notes:
+        type: string
+        required: false
+        description: Notes for compliance review (not sent to employee)
+
+  citations:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        claim:
+          type: string
+          required: true
+          description: Statement in the answer that needs backing
+        source:
+          type: string
+          required: true
+          description: Path or reference to the supporting policy
+
+  tone_check:
+    type: object
+    required: true
+    fields:
+      empathy_present:
+        type: boolean
+        description: Whether the answer acknowledges the employee's situation
+      jargon_free:
+        type: boolean
+        description: Whether the answer avoids HR/legal jargon
+      honest_about_gaps:
+        type: boolean
+        description: Whether gaps in knowledge are honestly acknowledged
+
+  disclaimer:
+    type: string
+    required: false
+    description: Standard disclaimer if topic touches sensitive areas (not legal advice, etc.)
+
+# Example output
+example:
+  query_id: "HRQ-2026-00042"
+  timestamp: "2026-02-15T10:15:08Z"
+  response:
+    greeting: "Hi there,"
+    body: |
+      Great question — it's really sensible to plan ahead for your leave.
+
+      Yes, you can carry over unused annual leave to the next holiday year. Under our Annual Leave Policy, you're able to carry over up to 5 days, provided your line manager approves the request. Any carried-over days must be taken by 31 March of the following year.
+
+      It's worth noting that this carryover applies to your additional contractual leave (above the 20-day statutory minimum). The statutory portion of your leave generally needs to be taken within the leave year.
+
+      To arrange this, you'll need to submit a carryover request to your line manager before the end of the current leave year.
+    action_steps:
+      - step: "Speak to your line manager about carrying over your unused days"
+        contact: "Your line manager"
+        deadline: "Before the end of the current leave year"
+        mandatory: true
+      - step: "Plan to use any carried-over days by 31 March"
+        contact: ""
+        deadline: "31 March"
+        mandatory: true
+    closing: "Hope that helps — do get in touch if you have any other questions.\n\nYour HR Team"
+    internal_notes: "Straightforward carryover query. No personalised data needed."
+  citations:
+    - claim: "carry over up to 5 days"
+      source: "knowledge-base/policies/annual-leave.md"
+    - claim: "must be taken by 31 March"
+      source: "knowledge-base/policies/annual-leave.md"
+  tone_check:
+    empathy_present: true
+    jargon_free: true
+    honest_about_gaps: true
+  disclaimer: null

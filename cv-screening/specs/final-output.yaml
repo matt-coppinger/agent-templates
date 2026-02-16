@@ -1,0 +1,86 @@
+# Final Pipeline Output Spec
+# The complete shortlist package after human review
+
+schema:
+  batch_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  job_spec_reference:
+    type: string
+    required: true
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      batch_started: { type: datetime }
+      parsing_completed: { type: datetime }
+      matching_completed: { type: datetime }
+      assessment_completed: { type: datetime }
+      ranking_completed: { type: datetime }
+      human_reviewed: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  batch_summary:
+    type: object
+    required: true
+    fields:
+      total_cvs_received: { type: integer }
+      total_parsed: { type: integer }
+      total_skipped: { type: integer }
+      met_minimum_threshold: { type: integer }
+      shortlisted: { type: integer }
+
+  shortlist:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        candidate_id: { type: string }
+        rank: { type: integer }
+        composite_score: { type: float }
+        summary: { type: string, description: "One-paragraph candidate summary" }
+        key_strengths: { type: list, items: { type: string } }
+        gaps: { type: list, items: { type: string } }
+        interview_focus: { type: list, items: { type: string } }
+        interview_questions: { type: list, items: { type: string } }
+        human_notes: { type: string, required: false, description: "Notes added during human review" }
+
+  human_decision:
+    type: object
+    required: true
+    fields:
+      action: { type: enum, values: [approved, modified, rejected, re-run] }
+      candidates_approved: { type: list, items: { type: string } }
+      candidates_removed: { type: list, items: { type: string }, required: false }
+      candidates_added: { type: list, items: { type: string }, required: false, description: "Borderline candidates added by reviewer" }
+      notes: { type: string, required: false }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [parser, matcher, assessor, ranker, human] }
+        candidates_processed: { type: integer }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking
+
+  bias_audit:
+    type: object
+    required: true
+    fields:
+      all_assessments_passed_bias_check: { type: boolean }
+      flagged_concerns: { type: list, items: { type: string } }
+      anonymisation_maintained: { type: boolean }
+    description: Summary of bias mitigation compliance across the batch

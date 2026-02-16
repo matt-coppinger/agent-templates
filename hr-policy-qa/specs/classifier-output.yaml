@@ -1,0 +1,97 @@
+# Intent Classifier Output Spec
+# Produces structured classification of an employee HR question
+
+schema:
+  query_id:
+    type: string
+    required: true
+    description: Unique identifier for the query
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of classification
+
+  topic:
+    type: enum
+    required: true
+    values:
+      - leave
+      - benefits
+      - payroll
+      - grievance
+      - disciplinary
+      - flexible-working
+      - onboarding
+      - offboarding
+      - training
+      - policies-general
+      - wellbeing
+      - redundancy
+      - discrimination
+      - whistleblowing
+      - other
+    description: Primary question topic
+
+  subtopic:
+    type: string
+    required: false
+    description: Freeform subtopic for specificity (e.g. paternity-leave, cycle-to-work)
+
+  sensitivity:
+    type: enum
+    required: true
+    values: [low, medium, high, critical]
+    description: |
+      low: routine policy question
+      medium: involves personal circumstances but standard process
+      high: emotionally charged or legally sensitive
+      critical: safeguarding, whistleblowing, discrimination
+
+  employee_intent:
+    type: string
+    required: true
+    description: One-sentence summary of what the employee wants to know
+
+  personalisation_needed:
+    type: enum
+    required: true
+    values: [none, role-based, individual]
+    description: |
+      none: general policy, no personal data needed
+      role-based: depends on job level, department, or contract type
+      individual: needs specific employee records
+
+  escalation_flags:
+    type: list
+    required: false
+    items:
+      type: enum
+      values:
+        - grievance
+        - disciplinary
+        - discrimination
+        - whistleblowing
+        - redundancy
+        - legal-reference
+        - urgent-welfare
+    description: Flags that require human HR involvement
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Classifier confidence in the overall assessment
+
+# Example output
+example:
+  query_id: "HRQ-2026-00042"
+  timestamp: "2026-02-15T10:15:00Z"
+  topic: leave
+  subtopic: annual-leave-carryover
+  sensitivity: low
+  employee_intent: "Wants to know if they can carry over unused annual leave to next year"
+  personalisation_needed: role-based
+  escalation_flags: []
+  confidence: 0.94

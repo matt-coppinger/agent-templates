@@ -1,0 +1,131 @@
+# Extractor Sub-Agent Output Spec
+# Produces structured data extracted from an invoice or expense receipt
+
+schema:
+  invoice_id:
+    type: string
+    required: true
+    description: Unique identifier for the invoice
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of extraction
+
+  vendor:
+    type: object
+    required: true
+    fields:
+      name: { type: string, required: true, description: "Full legal entity name" }
+      address: { type: string, required: false }
+      vat_number: { type: string, required: false, description: "VAT registration number" }
+      contact: { type: string, required: false }
+
+  invoice_details:
+    type: object
+    required: true
+    fields:
+      invoice_number: { type: string, required: true }
+      invoice_date: { type: date, required: true, description: "ISO 8601 date" }
+      due_date: { type: date, required: false }
+      purchase_order: { type: string, required: false }
+      service_period_start: { type: date, required: false }
+      service_period_end: { type: date, required: false }
+
+  currency:
+    type: string
+    required: true
+    description: ISO 4217 currency code (e.g. GBP, USD, EUR)
+
+  amounts:
+    type: object
+    required: true
+    fields:
+      net_amount: { type: float, required: true, description: "Amount before VAT/tax" }
+      vat_amount: { type: float, required: true, description: "Total VAT/tax amount" }
+      gross_amount: { type: float, required: true, description: "Total including VAT/tax" }
+
+  vat_breakdown:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        rate: { type: float, description: "VAT rate as decimal (e.g. 0.20)" }
+        net_amount: { type: float }
+        vat_amount: { type: float }
+    description: Breakdown by VAT rate if multiple rates apply
+
+  line_items:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        description: { type: string }
+        quantity: { type: float }
+        unit_price: { type: float }
+        line_total: { type: float }
+        vat_rate: { type: float }
+        suggested_gl_code: { type: string, description: "Suggested GL code category" }
+
+  payment_terms:
+    type: object
+    required: false
+    fields:
+      terms: { type: string, description: "e.g. Net 30, Due on receipt" }
+      bank_details: { type: string, required: false }
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Overall extraction confidence
+
+  extraction_notes:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Notes about any fields that were unclear or assumed
+
+# Example output
+example:
+  invoice_id: "INV-2026-00142"
+  timestamp: "2026-02-15T10:00:00Z"
+  vendor:
+    name: "Acme Office Supplies Ltd"
+    address: "14 Commerce Road, Manchester, M1 2AB"
+    vat_number: "GB 123 4567 89"
+  invoice_details:
+    invoice_number: "ACM-2026-0891"
+    invoice_date: "2026-02-10"
+    due_date: "2026-03-12"
+    purchase_order: "PO-2026-0234"
+  currency: "GBP"
+  amounts:
+    net_amount: 450.00
+    vat_amount: 90.00
+    gross_amount: 540.00
+  vat_breakdown:
+    - rate: 0.20
+      net_amount: 450.00
+      vat_amount: 90.00
+  line_items:
+    - description: "A4 printer paper (box of 5 reams)"
+      quantity: 10
+      unit_price: 25.00
+      line_total: 250.00
+      vat_rate: 0.20
+      suggested_gl_code: "6200"
+    - description: "Toner cartridges (black)"
+      quantity: 4
+      unit_price: 50.00
+      line_total: 200.00
+      vat_rate: 0.20
+      suggested_gl_code: "6200"
+  payment_terms:
+    terms: "Net 30"
+    bank_details: "Sort: 12-34-56, Acc: 12345678"
+  confidence: 0.95

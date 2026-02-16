@@ -1,0 +1,116 @@
+# Structure Planner Sub-Agent Output Spec
+# Plans the documentation structure and identifies gaps
+
+schema:
+  doc_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  doc_type:
+    type: enum
+    required: true
+    values:
+      - api-reference
+      - tutorial
+      - runbook
+      - architecture
+    description: The determined documentation type
+
+  doc_type_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+  title:
+    type: string
+    required: true
+    description: Proposed document title
+
+  version:
+    type: string
+    required: false
+    description: API or library version if detectable
+
+  sections:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        heading: { type: string }
+        level: { type: integer, description: "Heading level (1-4)" }
+        estimated_words: { type: integer }
+        source_data: { type: list, items: { type: string }, description: "Which analyser fields feed this section" }
+        existing_coverage: { type: enum, values: [none, partial, complete], description: "For diff-based updates" }
+        notes: { type: string }
+
+  gaps:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        item: { type: string, description: "What is missing" }
+        severity: { type: enum, values: [critical, important, minor] }
+        recommendation: { type: string }
+
+  cross_references:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        target: { type: string, description: "Doc or section to link to" }
+        relationship: { type: enum, values: [related, prerequisite, see-also, implements, extends] }
+        context: { type: string }
+
+  estimated_total_words:
+    type: integer
+    required: true
+
+  template_to_use:
+    type: string
+    required: false
+    description: Path to the template file if applicable
+
+example:
+  doc_id: "DOC-2026-00042"
+  timestamp: "2026-02-15T10:05:00Z"
+  doc_type: api-reference
+  doc_type_confidence: 0.92
+  title: "Users API Reference"
+  version: "v2.1"
+  sections:
+    - heading: "Overview"
+      level: 2
+      estimated_words: 150
+      source_data: ["summary", "docstring"]
+      existing_coverage: none
+      notes: null
+    - heading: "Authentication"
+      level: 2
+      estimated_words: 100
+      source_data: ["endpoints.auth_required"]
+      existing_coverage: none
+      notes: "All endpoints require Bearer token"
+    - heading: "Endpoints"
+      level: 2
+      estimated_words: 800
+      source_data: ["endpoints", "functions"]
+      existing_coverage: none
+      notes: "One subsection per endpoint"
+  gaps:
+    - item: "Error response schemas not defined in source"
+      severity: important
+      recommendation: "Document common error codes based on HTTP status conventions"
+  cross_references:
+    - target: "authentication-guide.md"
+      relationship: prerequisite
+      context: "Users API requires authentication"
+  estimated_total_words: 1200
+  template_to_use: "knowledge-base/templates/api-reference-template.md"

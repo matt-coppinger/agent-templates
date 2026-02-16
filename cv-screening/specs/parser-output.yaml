@@ -1,0 +1,144 @@
+# Parser Sub-Agent Output Spec
+# Produces anonymised structured data from raw CV text
+
+schema:
+  candidate_id:
+    type: string
+    required: true
+    description: Anonymous identifier (e.g. CAND-001)
+
+  batch_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of parsing
+
+  status:
+    type: enum
+    required: true
+    values: [parsed, skipped]
+    description: Whether the CV was successfully parsed
+
+  skip_reason:
+    type: string
+    required: false
+    description: Reason for skipping (if status is skipped)
+
+  education:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        level: { type: enum, values: [secondary, diploma, bachelors, masters, doctorate, professional, other] }
+        field: { type: string }
+        institution: { type: string }
+        completion_year: { type: integer }
+        grade: { type: string, required: false }
+
+  certifications:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        name: { type: string }
+        issuing_body: { type: string }
+        year: { type: integer }
+        expiry: { type: integer, required: false }
+
+  experience:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        title: { type: string }
+        company: { type: string }
+        start_date: { type: string, description: "YYYY-MM format" }
+        end_date: { type: string, description: "YYYY-MM or 'present'" }
+        duration_months: { type: integer }
+        responsibilities: { type: list, items: { type: string }, description: "Max 3 bullet points" }
+        achievements: { type: list, items: { type: string }, required: false }
+
+  total_experience_years:
+    type: float
+    required: true
+    description: Total professional experience in years
+
+  relevant_experience_years:
+    type: float
+    required: true
+    description: Experience relevant to the type of role (estimated)
+
+  skills:
+    type: object
+    required: true
+    fields:
+      technical:
+        type: list
+        items: { type: string }
+      soft:
+        type: list
+        items: { type: string }
+      languages:
+        type: list
+        items:
+          type: object
+          fields:
+            language: { type: string }
+            level: { type: enum, values: [native, fluent, intermediate, basic] }
+
+  employment_gaps:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        after_role: { type: string, description: "Company name of preceding role" }
+        gap_months: { type: integer }
+    description: Gaps greater than 3 months between roles
+
+  extraction_notes:
+    type: string
+    required: false
+    description: Notes on ambiguous or unclear information in the CV
+
+example:
+  candidate_id: "CAND-001"
+  batch_id: "BATCH-2026-02-15"
+  timestamp: "2026-02-15T10:00:00Z"
+  status: parsed
+  education:
+    - level: masters
+      field: "Computer Science"
+      institution: "University of Edinburgh"
+      completion_year: 2018
+  certifications:
+    - name: "AWS Solutions Architect"
+      issuing_body: "Amazon Web Services"
+      year: 2022
+  experience:
+    - title: "Senior Software Engineer"
+      company: "TechCorp Ltd"
+      start_date: "2020-03"
+      end_date: "present"
+      duration_months: 71
+      responsibilities:
+        - "Led team of 5 engineers building microservices platform"
+        - "Designed CI/CD pipeline reducing deployment time by 60%"
+        - "Mentored 3 junior developers"
+      achievements:
+        - "Reduced infrastructure costs by £120k/year through optimisation"
+  total_experience_years: 8.5
+  relevant_experience_years: 6.0
+  skills:
+    technical: ["Python", "TypeScript", "AWS", "Docker", "Kubernetes", "PostgreSQL"]
+    soft: ["Team leadership", "Mentoring"]
+    languages:
+      - language: "English"
+        level: native
+  employment_gaps: []

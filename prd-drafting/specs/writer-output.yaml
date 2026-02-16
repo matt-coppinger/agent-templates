@@ -1,0 +1,139 @@
+# Spec Writer Sub-Agent Output Spec
+# Produces the structured document (PRD, feature brief, or tech spec)
+
+schema:
+  spec_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  output_format:
+    type: enum
+    required: true
+    values: [prd, feature-brief, tech-spec]
+
+  document:
+    type: string
+    required: true
+    description: "Full markdown document following the selected template"
+
+  metadata:
+    type: object
+    required: true
+    fields:
+      title: { type: string }
+      author: { type: string, description: "Agent-generated, to be replaced by human" }
+      version: { type: string }
+      status: { type: enum, values: [draft, in-review, approved] }
+      last_updated: { type: datetime }
+
+  sections_present:
+    type: list
+    required: true
+    items:
+      type: string
+    description: "List of section headings included in the document"
+
+  user_stories:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        id: { type: string, description: "US-001, US-002, etc." }
+        persona: { type: string }
+        action: { type: string }
+        outcome: { type: string }
+        acceptance_criteria:
+          type: list
+          items:
+            type: object
+            fields:
+              given: { type: string }
+              when: { type: string }
+              then: { type: string }
+
+  requirements_summary:
+    type: object
+    required: true
+    fields:
+      total_functional: { type: integer }
+      total_non_functional: { type: integer }
+      must_have: { type: integer }
+      should_have: { type: integer }
+      could_have: { type: integer }
+
+  nfr_coverage:
+    type: object
+    required: true
+    fields:
+      addressed: { type: list, items: { type: string } }
+      missing_required: { type: list, items: { type: string } }
+      missing_recommended: { type: list, items: { type: string } }
+
+  testability_flags:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        requirement_id: { type: string }
+        issue: { type: string }
+        suggestion: { type: string }
+    description: "Requirements that could not be made fully testable"
+
+  revision_round:
+    type: integer
+    required: true
+    description: "0 for first draft, incremented on each revision"
+
+  revision_notes:
+    type: string
+    required: false
+    description: "What changed in this revision (empty for first draft)"
+
+example:
+  spec_id: "PRD-2026-00042"
+  timestamp: "2026-02-15T10:15:00Z"
+  output_format: prd
+  document: "# Bulk Report Export\n\n## Problem Statement\n..."
+  metadata:
+    title: "Bulk Report Export"
+    author: "PRD Drafting Agent"
+    version: "0.1"
+    status: draft
+    last_updated: "2026-02-15T10:15:00Z"
+  sections_present:
+    - "Problem Statement"
+    - "User Stories"
+    - "Functional Requirements"
+    - "Non-Functional Requirements"
+    - "Acceptance Criteria"
+    - "Technical Approach"
+    - "Milestones"
+    - "Risks"
+  user_stories:
+    - id: "US-001"
+      persona: "Power user"
+      action: "select and export multiple reports at once"
+      outcome: "I save time on monthly reporting"
+      acceptance_criteria:
+        - given: "I am on the reports dashboard with 10+ reports listed"
+          when: "I select 5 reports and click 'Export Selected'"
+          then: "A ZIP file containing 5 PDF reports downloads within 30 seconds"
+  requirements_summary:
+    total_functional: 6
+    total_non_functional: 4
+    must_have: 4
+    should_have: 3
+    could_have: 3
+  nfr_coverage:
+    addressed: [performance, security, accessibility]
+    missing_required: []
+    missing_recommended: [internationalisation]
+  testability_flags: []
+  revision_round: 0
+  revision_notes: ""

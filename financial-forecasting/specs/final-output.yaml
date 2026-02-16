@@ -1,0 +1,106 @@
+# Final Pipeline Output Spec
+# The complete output after human review and approval
+
+schema:
+  report_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  report_type:
+    type: enum
+    required: true
+    values: [monthly-variance, quarterly-forecast, annual-budget-review]
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      data_received: { type: datetime }
+      ingested: { type: datetime }
+      analysed: { type: datetime }
+      forecast_generated: { type: datetime }
+      narrative_written: { type: datetime }
+      approved: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  reporting_period:
+    type: object
+    required: true
+    fields:
+      period_label: { type: string }
+      start_date: { type: date }
+      end_date: { type: date }
+
+  executive_summary:
+    type: string
+    required: true
+    description: Final approved executive summary
+
+  key_metrics:
+    type: object
+    required: true
+    description: Headline KPIs for the period
+    fields:
+      revenue: { type: object, fields: { actual: { type: float }, budget: { type: float }, variance_pct: { type: float } } }
+      ebitda: { type: object, fields: { actual: { type: float }, budget: { type: float }, variance_pct: { type: float } } }
+      net_profit: { type: object, fields: { actual: { type: float }, budget: { type: float }, variance_pct: { type: float } } }
+
+  material_variances_count:
+    type: object
+    required: true
+    fields:
+      red: { type: integer }
+      amber: { type: integer }
+      green: { type: integer }
+
+  forecast_summary:
+    type: object
+    required: false
+    fields:
+      base_case_annual_revenue: { type: float }
+      base_case_annual_ebitda: { type: float }
+      scenario_range_revenue: { type: string, description: "e.g. '£12.5m - £15.2m'" }
+      forecast_confidence: { type: float }
+
+  human_decision:
+    type: enum
+    required: true
+    values: [approved, edited, reanalysis-requested, escalated]
+
+  report_body:
+    type: string
+    required: true
+    description: Full approved management report in markdown
+
+  actions_raised:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        action: { type: string }
+        owner: { type: string }
+        deadline: { type: string }
+        approved_by: { type: string }
+
+  data_quality_score:
+    type: float
+    required: true
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [data-ingester, trend-analyser, forecaster, narrative-writer, human] }
+        output_file: { type: string }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking

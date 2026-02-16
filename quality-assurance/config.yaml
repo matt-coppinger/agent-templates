@@ -1,0 +1,103 @@
+# Quality Assurance Agent Pipeline Configuration
+
+pipeline:
+  name: quality-assurance
+  version: "1.0"
+  description: Multi-agent quality assurance analysis with human review
+
+# Model recommendations per sub-agent
+models:
+  data-parser: claude-haiku        # Fast, cheap data extraction
+  pattern-detector: claude-haiku   # Efficient pattern matching
+  root-cause-analyser: claude-sonnet  # Deep reasoning for RCA
+  report-generator: claude-sonnet     # Quality report writing
+
+# Defect severity definitions
+severity:
+  critical:
+    description: "Safety risk, regulatory non-compliance, or complete product failure"
+    response_time: "immediate"
+    auto_escalate: true
+  major:
+    description: "Significant functional defect affecting product usability"
+    response_time: "24h"
+    auto_escalate: false
+  minor:
+    description: "Cosmetic or minor functional issue, workaround available"
+    response_time: "72h"
+    auto_escalate: false
+  observation:
+    description: "Potential concern noted for monitoring, no immediate action"
+    response_time: "next_review"
+    auto_escalate: false
+
+# KPI thresholds
+kpi_thresholds:
+  first_pass_yield:
+    target: 0.95
+    warning: 0.90
+    critical: 0.85
+  defect_rate:
+    target: 0.02
+    warning: 0.05
+    critical: 0.10
+  dpmo:  # Defects per million opportunities
+    target: 3400
+    warning: 6210
+    critical: 66800
+  cost_of_quality_ratio:
+    target: 0.15
+    warning: 0.25
+    critical: 0.35
+  customer_return_rate:
+    target: 0.01
+    warning: 0.03
+    critical: 0.05
+  mean_time_to_detect:
+    target: 2.0    # hours
+    warning: 8.0
+    critical: 24.0
+
+# Pareto analysis
+pareto:
+  threshold: 0.80          # Identify defects contributing to top 80% of issues
+  min_sample_size: 10      # Minimum defects for meaningful Pareto
+  group_by:
+    - defect_type
+    - location
+    - supplier
+
+# Pattern detection
+pattern_detection:
+  min_trend_points: 5      # Minimum data points to declare a trend
+  correlation_threshold: 0.6  # Minimum correlation coefficient
+  time_windows:
+    - 7d      # Weekly
+    - 30d     # Monthly
+    - 90d     # Quarterly
+
+# Report format
+report:
+  format: markdown
+  include_executive_summary: true
+  include_pareto_chart: true
+  include_trend_analysis: true
+  include_root_cause: true
+  include_corrective_actions: true
+  include_kpi_dashboard: true
+  language: en-GB
+
+# Human review
+review:
+  always_review: true
+  auto_publish_threshold: 0.95
+  show_methodology: true
+  show_raw_data_summary: true
+
+# Knowledge base
+knowledge_base:
+  path: ./knowledge-base/
+  defect_categories: ./knowledge-base/standards/defect-categories.md
+  acceptance_criteria: ./knowledge-base/standards/acceptance-criteria.md
+  rca_methods: ./knowledge-base/frameworks/root-cause-methods.md
+  kpi_definitions: ./knowledge-base/reference/kpi-definitions.md

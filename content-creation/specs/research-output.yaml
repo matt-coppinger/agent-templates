@@ -1,0 +1,103 @@
+# Research Compiler Output Spec
+# Produces research context to support content writing
+
+schema:
+  brief_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  brand_voice_summary:
+    type: object
+    required: true
+    fields:
+      relevant_traits: { type: list, items: { type: string }, description: "Voice traits applicable to this content" }
+      tone_alignment: { type: string, description: "How the brief's tone maps to brand voice" }
+      style_notes: { type: list, items: { type: string }, description: "Relevant editorial style rules" }
+
+  supporting_data:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        fact: { type: string }
+        source: { type: string }
+        date: { type: string, description: "Publication date or 'undated'" }
+        relevance: { type: enum, values: [high, medium, low] }
+    description: Statistics and data points to support key messages
+
+  content_angles:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        angle: { type: string }
+        reasoning: { type: string }
+        recommended: { type: boolean }
+    description: Possible angles for the content, with one recommended
+
+  competitor_context:
+    type: object
+    required: false
+    fields:
+      common_approaches: { type: list, items: { type: string } }
+      gaps: { type: list, items: { type: string }, description: "Opportunities for differentiation" }
+      avoid: { type: list, items: { type: string }, description: "Clichéd or overused approaches" }
+
+  seo_validation:
+    type: object
+    required: true
+    fields:
+      primary_keywords_validated: { type: boolean }
+      additional_keywords: { type: list, items: { type: string } }
+      related_questions: { type: list, items: { type: string }, description: "People Also Ask style questions" }
+
+  research_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Confidence in research completeness and accuracy
+
+example:
+  brief_id: "BRF-2026-00042"
+  timestamp: "2026-02-15T10:05:00Z"
+  brand_voice_summary:
+    relevant_traits: ["approachable", "knowledgeable", "practical"]
+    tone_alignment: "Brief requests professional-friendly — aligns with brand default"
+    style_notes:
+      - "Use 'we' not 'the company'"
+      - "Oxford comma required"
+      - "Avoid exclamation marks in body copy"
+  supporting_data:
+    - fact: "73% of B2B marketers say content creation is their biggest challenge"
+      source: "Content Marketing Institute, 2025 Report"
+      date: "2025-10"
+      relevance: high
+    - fact: "Companies using structured content workflows produce 3.2x more content"
+      source: "HubSpot State of Marketing 2025"
+      date: "2025-06"
+      relevance: high
+  content_angles:
+    - angle: "The hidden cost of inconsistent content — why workflows matter"
+      reasoning: "Directly addresses the ROI pain point with a fresh framing"
+      recommended: true
+    - angle: "From 5 to 15 pieces a week: scaling content without scaling headcount"
+      reasoning: "Practical, numbers-driven appeal"
+      recommended: false
+  competitor_context:
+    common_approaches: ["Generic 'AI will replace writers' narrative"]
+    gaps: ["Few competitors address brand consistency in AI workflows"]
+    avoid: ["'10x your content' hyperbole"]
+  seo_validation:
+    primary_keywords_validated: true
+    additional_keywords: ["content workflow automation", "marketing efficiency"]
+    related_questions:
+      - "How do you maintain brand voice with AI content?"
+      - "What is a content creation pipeline?"
+  research_confidence: 0.88

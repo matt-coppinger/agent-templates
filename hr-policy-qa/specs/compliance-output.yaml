@@ -1,0 +1,128 @@
+# Compliance Checker Output Spec
+# Verifies answer accuracy, flags sensitivity, ensures no legal advice
+
+schema:
+  query_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  verdict:
+    type: enum
+    required: true
+    values:
+      - pass
+      - revise
+      - escalate
+    description: Overall compliance verdict
+
+  quality_scores:
+    type: object
+    required: true
+    fields:
+      accuracy:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Do citations support the claims? Are entitlements correct?
+      completeness:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Does the answer address the employee's actual question?
+      tone:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Is it empathetic, supportive, and jargon-free?
+      policy_compliance:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Does it accurately reflect documented policy?
+      legal_safety:
+        type: float
+        min: 0.0
+        max: 1.0
+        description: Does it avoid legal advice? Appropriate disclaimers?
+
+  overall_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Weighted average of quality scores
+
+  issues:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        severity:
+          type: enum
+          values: [blocker, warning, suggestion]
+        category:
+          type: enum
+          values: [accuracy, tone, policy, completeness, legal-safety, sensitivity]
+        description:
+          type: string
+        location:
+          type: string
+          description: Which part of the answer is affected
+        fix_suggestion:
+          type: string
+
+  sensitivity_flags:
+    type: list
+    required: false
+    items:
+      type: enum
+      values:
+        - legal-advice-risk
+        - contractual-risk
+        - statutory-error
+        - discrimination-risk
+        - data-privacy
+        - policy-gap
+    description: Flags requiring HR attention
+
+  revision_notes:
+    type: string
+    required: false
+    description: If verdict is "revise", specific instructions for the generator
+
+  human_review_summary:
+    type: string
+    required: true
+    description: |
+      2–3 sentence summary for an HR manager. Is it safe to deliver?
+      What needs attention?
+
+# Example output
+example:
+  query_id: "HRQ-2026-00042"
+  timestamp: "2026-02-15T10:15:12Z"
+  verdict: pass
+  quality_scores:
+    accuracy: 0.95
+    completeness: 0.92
+    tone: 0.94
+    policy_compliance: 0.96
+    legal_safety: 1.0
+  overall_confidence: 0.95
+  issues:
+    - severity: suggestion
+      category: completeness
+      description: "Could mention that different rules apply during maternity/parental leave"
+      location: body
+      fix_suggestion: "Add a note that carryover rules differ for employees on family-related leave"
+  sensitivity_flags: []
+  revision_notes: null
+  human_review_summary: |
+    Safe to deliver. Answer correctly cites the annual leave carryover policy (5 days,
+    manager approval, 31 March deadline) and distinguishes statutory from contractual leave.
+    No legal advice given. Minor suggestion to mention family leave exceptions.

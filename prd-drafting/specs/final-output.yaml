@@ -1,0 +1,75 @@
+# Final Pipeline Output Spec
+# The complete output after human review and approval
+
+schema:
+  spec_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      parsed: { type: datetime }
+      enriched: { type: datetime }
+      written: { type: datetime }
+      reviewed: { type: datetime }
+      approved: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  output_format:
+    type: enum
+    required: true
+    values: [prd, feature-brief, tech-spec]
+
+  document:
+    type: object
+    required: true
+    fields:
+      title: { type: string }
+      body: { type: string, description: "Final approved document in markdown" }
+      was_edited: { type: boolean, description: "Whether human modified the draft" }
+      version: { type: string }
+
+  quality:
+    type: object
+    required: true
+    fields:
+      reviewer_score: { type: float }
+      revision_rounds: { type: integer }
+      issues_found: { type: integer }
+      issues_resolved: { type: integer }
+      nfr_coverage: { type: list, items: { type: string } }
+
+  requirements_count:
+    type: object
+    required: true
+    fields:
+      functional: { type: integer }
+      non_functional: { type: integer }
+      user_stories: { type: integer }
+      acceptance_criteria: { type: integer }
+
+  human_decision:
+    type: enum
+    required: true
+    values: [approved, edited, rejected, escalated]
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [parser, enricher, writer, reviewer, human] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking

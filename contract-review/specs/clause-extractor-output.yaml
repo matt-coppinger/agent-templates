@@ -1,0 +1,111 @@
+# Clause Extractor Sub-Agent Output Spec
+# Produces structured extraction of all key clauses from a contract
+
+schema:
+  review_id:
+    type: string
+    required: true
+    description: Unique identifier for this contract review
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of extraction
+
+  contract_metadata:
+    type: object
+    required: true
+    fields:
+      title: { type: string, description: "Contract title or heading" }
+      parties: { type: list, items: { type: string }, description: "Named parties" }
+      effective_date: { type: string, description: "Commencement or effective date" }
+      contract_type: { type: string, description: "e.g. NDA, SaaS, service agreement, supply" }
+      governing_law: { type: string, description: "Stated governing law/jurisdiction" }
+      total_clauses_found: { type: integer }
+
+  extracted_clauses:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        category:
+          type: enum
+          values:
+            - term-and-duration
+            - termination
+            - liability
+            - indemnity
+            - intellectual-property
+            - confidentiality
+            - payment-terms
+            - governing-law
+            - force-majeure
+            - warranties
+            - data-protection
+            - assignment
+            - entire-agreement
+            - notices
+            - insurance
+            - non-solicitation
+            - dispute-resolution
+            - other
+        clause_title: { type: string, description: "Heading as it appears in the contract" }
+        clause_number: { type: string, description: "Section/clause reference number" }
+        verbatim_text: { type: string, description: "Exact text from the contract" }
+        summary: { type: string, description: "One-sentence plain-English summary" }
+        key_terms:
+          type: list
+          items:
+            type: object
+            fields:
+              term: { type: string }
+              value: { type: string }
+              type: { type: enum, values: [date, amount, period, threshold, percentage, other] }
+        jurisdiction_relevance: { type: string, description: "Jurisdiction-specific notes" }
+        confidence: { type: float, min: 0.0, max: 1.0 }
+
+  missing_clauses:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        category: { type: string, description: "Standard clause category not found" }
+        severity: { type: enum, values: [critical, notable, minor] }
+        note: { type: string }
+    description: Standard clauses from config checklist not present in the contract
+
+  disclaimer:
+    type: string
+    required: true
+    description: "Must state: This extraction does not constitute legal advice"
+
+# Example output
+example:
+  review_id: "REV-2026-00042"
+  timestamp: "2026-02-15T10:00:00Z"
+  contract_metadata:
+    title: "Master Services Agreement"
+    parties: ["Acme Ltd", "Widget Corp"]
+    effective_date: "1 March 2026"
+    contract_type: "service-agreement"
+    governing_law: "England and Wales"
+    total_clauses_found: 14
+  extracted_clauses:
+    - category: liability
+      clause_title: "Limitation of Liability"
+      clause_number: "12.1"
+      verbatim_text: "The total aggregate liability of the Supplier under or in connection with this Agreement shall not exceed the Charges paid in the 12 months preceding the claim."
+      summary: "Supplier liability capped at 12 months' charges"
+      key_terms:
+        - term: "liability cap"
+          value: "12 months' charges"
+          type: period
+      jurisdiction_relevance: "Standard under English law"
+      confidence: 0.95
+  missing_clauses:
+    - category: insurance
+      severity: notable
+      note: "No insurance requirements specified"
+  disclaimer: "This extraction does not constitute legal advice"

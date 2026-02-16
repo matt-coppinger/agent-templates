@@ -1,0 +1,86 @@
+# Final Pipeline Output Spec
+# The complete output after human review and approval
+
+schema:
+  invoice_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      extracted: { type: datetime }
+      validated: { type: datetime }
+      anomaly_checked: { type: datetime }
+      approval_recommended: { type: datetime }
+      human_decision: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  invoice_summary:
+    type: object
+    required: true
+    fields:
+      vendor: { type: string }
+      invoice_number: { type: string }
+      gross_amount: { type: float }
+      currency: { type: string }
+      invoice_date: { type: date }
+      due_date: { type: date }
+
+  human_decision:
+    type: enum
+    required: true
+    values: [approved, queried, rejected, escalated]
+
+  approved_by:
+    type: string
+    required: false
+    description: "Name or role of the approver"
+
+  journal_entry:
+    type: object
+    required: true
+    description: "The approved journal entry (may be modified by human)"
+    fields:
+      entries:
+        type: list
+        items:
+          type: object
+          fields:
+            account_code: { type: string }
+            account_name: { type: string }
+            debit: { type: float }
+            credit: { type: float }
+            description: { type: string }
+      total_debit: { type: float }
+      total_credit: { type: float }
+      was_modified: { type: boolean, description: "Whether human modified the journal entry" }
+
+  risk_summary:
+    type: object
+    required: true
+    fields:
+      validation_status: { type: string }
+      anomaly_risk: { type: string }
+      fraud_risk_score: { type: float }
+      flags: { type: list, items: { type: string } }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [extractor, validator, anomaly_detector, approver, human] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking

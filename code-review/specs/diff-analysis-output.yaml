@@ -1,0 +1,104 @@
+# Diff Analyser Sub-Agent Output Spec
+# Produces structured analysis of a PR diff/changeset
+
+schema:
+  review_id:
+    type: string
+    required: true
+    description: Unique identifier for this review
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of analysis
+
+  pr_summary:
+    type: string
+    required: true
+    description: One-paragraph summary of the overall change
+
+  change_types:
+    type: list
+    required: true
+    items:
+      type: enum
+      values: [feature, bugfix, refactor, test, docs, config, dependency, style]
+    description: Categories of change present in this PR
+
+  totals:
+    type: object
+    required: true
+    fields:
+      files_changed: { type: integer }
+      lines_added: { type: integer }
+      lines_removed: { type: integer }
+      net_change: { type: integer }
+
+  files:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        path: { type: string }
+        language: { type: string, description: "Programming language" }
+        status: { type: enum, values: [added, modified, renamed, deleted] }
+        lines_added: { type: integer }
+        lines_removed: { type: integer }
+        change_summary: { type: string, description: "One-sentence description" }
+        key_modifications:
+          type: list
+          items:
+            type: object
+            fields:
+              type: { type: enum, values: [function_added, function_modified, function_removed, class_added, class_modified, class_removed, import_changed, config_changed, other] }
+              name: { type: string }
+              description: { type: string }
+
+  impact_assessment:
+    type: object
+    required: true
+    fields:
+      scope: { type: enum, values: [localised, moderate, broad], description: "How widely the changes affect the codebase" }
+      risk_level: { type: enum, values: [low, medium, high] }
+      test_coverage_change: { type: enum, values: [improved, unchanged, reduced, none], description: "Whether tests accompany the code changes" }
+      subsystems_affected: { type: list, items: { type: string } }
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Confidence in the analysis accuracy
+
+# Example output
+example:
+  review_id: "PR-1234"
+  timestamp: "2026-02-15T10:00:00Z"
+  pr_summary: "Adds rate limiting middleware to the API gateway with configurable thresholds per endpoint."
+  change_types: [feature, test]
+  totals:
+    files_changed: 4
+    lines_added: 187
+    lines_removed: 12
+    net_change: 175
+  files:
+    - path: "src/middleware/rate-limiter.ts"
+      language: typescript
+      status: added
+      lines_added: 120
+      lines_removed: 0
+      change_summary: "New rate limiting middleware with sliding window algorithm"
+      key_modifications:
+        - type: function_added
+          name: "createRateLimiter"
+          description: "Factory function returning Express middleware with configurable limits"
+        - type: function_added
+          name: "slidingWindowCounter"
+          description: "Implements sliding window rate counting using Redis"
+  impact_assessment:
+    scope: moderate
+    risk_level: medium
+    test_coverage_change: improved
+    subsystems_affected: [api-gateway, middleware, redis]
+  confidence: 0.91

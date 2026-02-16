@@ -1,0 +1,89 @@
+# Sample Data Room Index — Project Falcon
+# Target: Falcon Technologies Ltd
+# Date: 15 February 2026
+
+## 1. Financial
+1.01  Audited accounts FY2023
+1.02  Audited accounts FY2024
+1.03  Audited accounts FY2025
+1.04  Management accounts — Apr 2025 to Dec 2025
+1.05  Budget FY2026
+1.06  Financial model and projections
+1.07  Corporation tax computations FY2023-2025
+1.08  VAT returns — last 12 months
+1.09  Bank facility agreement — NatWest (dated March 2024)
+1.10  Debtor ageing report — January 2026
+1.11  Fixed asset register
+
+## 2. Legal — Corporate
+2.01  Certificate of incorporation
+2.02  Current articles of association
+2.03  Shareholders' agreement (dated June 2021)
+2.04  Share register
+2.05  Board minutes — 2023 to 2025
+2.06  Corporate structure chart
+
+## 3. Legal — Contracts
+3.01  Customer contract — GlobalRetail plc (£2.1m/yr)
+3.02  Customer contract — MidlandsCo Ltd (£890k/yr)
+3.03  Customer contract — Northern Services Ltd (£650k/yr)
+3.04  Supplier contract — CloudHost Inc (infrastructure)
+3.05  Supplier contract — DataPipe Ltd (data services)
+3.06  Office lease — Birmingham HQ
+
+## 4. Legal — Litigation
+4.01  Settlement agreement — former employee dispute (2024)
+4.02  Correspondence — TechCorp Ltd patent claim (January 2026)
+
+## 5. HR
+5.01  Employee list with terms (anonymised)
+5.02  Senior management service agreements (5)
+5.03  Organisation chart
+5.04  Employee handbook
+5.05  Pension scheme details — auto-enrolment
+
+## 6. Intellectual Property
+6.01  Trademark registrations — "Falcon" brand (UK and EU)
+6.02  Patent application — data processing method (pending)
+6.03  Software licence agreements (inbound)
+6.04  Domain name register
+
+## 7. Regulatory
+7.01  ICO registration
+7.02  Data protection impact assessment — core platform
+7.03  GDPR compliance policy
+7.04  Health and safety policy
+
+## 8. Insurance
+8.01  Professional indemnity policy
+8.02  Public liability policy
+8.03  D&O insurance
+8.04  Cyber insurance policy
+8.05  Claims history — last 3 years
+
+## 9. Property
+9.01  Office lease — Birmingham HQ (duplicate of 3.06)
+9.02  EPC certificate
+
+## 10. IT
+10.01  Systems architecture overview
+10.02  Software licence schedule
+10.03  Cybersecurity assessment report (2025)
+10.04  Business continuity plan
+
+---
+NOTE: The following expected documents appear to be MISSING from the data room:
+- Audit management letters (FY2023-2025)
+- PAYE/NIC compliance records
+- Creditor ageing report
+- Stock/inventory valuation
+- Working capital normalisation analysis
+- Transfer pricing documentation
+- R&D tax credit claims
+- Tax returns (filed, not just computations)
+- Disclosure letter
+- Information memorandum
+- Management accounts — Jan to Mar 2025
+- Key person insurance
+- Environmental survey (if applicable)
+- Restrictive covenant schedule for senior staff

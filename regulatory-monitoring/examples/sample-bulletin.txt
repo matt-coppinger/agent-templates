@@ -1,0 +1,112 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+UK REGULATORY UPDATE BULLETIN — 14 February 2026
+Published by: ComplianceWatch UK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. ICO PUBLISHES UPDATED AI GUIDANCE
+   Domain: Data Protection
+   Source: Information Commissioner's Office
+   Reference: ICO-2026-0214-AI
+
+   The ICO has published updated guidance on the use of AI and automated
+   decision-making under UK GDPR Article 22. Key changes include:
+
+   - Tighter definition of "meaningful human review" — rubber-stamping
+     of automated decisions no longer sufficient
+   - New risk-based framework for AI transparency obligations
+   - Mandatory AI impact assessments for high-risk automated decisions
+     affecting individuals
+   - Enhanced requirements for explaining AI logic to data subjects
+
+   Effective date: 1 March 2026
+   Grace period: 3 months for existing AI systems (until 1 June 2026)
+   Penalties: Existing UK GDPR penalties apply (up to £17.5m / 4% turnover)
+
+   The ICO has confirmed AI enforcement as a priority for 2026-27.
+
+───────────────────────────────────────────────────
+
+2. CONSULTATION: REVISED BREACH NOTIFICATION THRESHOLDS
+   Domain: Data Protection
+   Source: Information Commissioner's Office
+   Reference: ICO-CON-2026-003
+
+   The ICO is consulting on proposals to revise the thresholds for
+   mandatory data breach notification. The consultation considers:
+
+   - Whether the current 72-hour notification window remains appropriate
+   - Potential introduction of tiered notification based on breach severity
+   - Simplified reporting for SMEs
+   - Alignment with international breach notification standards
+
+   Consultation closes: 30 April 2026
+   Expected outcome: Autumn 2026
+
+   All data controllers are encouraged to respond.
+
+───────────────────────────────────────────────────
+
+3. HSE UPDATES WORKPLACE STRESS GUIDANCE
+   Domain: Health & Safety
+   Source: Health and Safety Executive
+   Reference: HSE-2026-STRESS-UPDATE
+
+   The HSE has updated its Management Standards approach to workplace
+   stress, incorporating:
+
+   - Explicit requirements for remote/hybrid working risk assessments
+   - Updated guidance on psychosocial hazards including digital fatigue
+   - New template tools for small businesses
+   - Stronger emphasis on management training and early intervention
+
+   Effective date: 1 April 2026
+   No transition period — guidance applies immediately on publication.
+
+   Note: While HSE Management Standards are guidance (not regulations),
+   they are used as the benchmark in enforcement and tribunal cases.
+
+───────────────────────────────────────────────────
+
+4. EMPLOYMENT RIGHTS BILL — COMMITTEE STAGE UPDATE
+   Domain: Employment Law
+   Source: UK Parliament
+   Reference: ERB-2024-25-CS3
+
+   The Employment Rights Bill has progressed through Commons Committee
+   Stage with the following notable amendments:
+
+   - Day-one unfair dismissal rights: statutory probationary period
+     confirmed at 9 months
+   - Zero-hours contracts: right to guaranteed hours after 12-week
+     qualifying period
+   - Fire and rehire: new statutory code with tribunal uplift of up to 25%
+   - Trade union access: digital access rights to workplace for organising
+
+   Expected Royal Assent: Summer 2026
+   Most provisions expected to take effect: October 2026 or April 2027
+
+   Employers should begin planning for significant changes to
+   employment practices.
+
+───────────────────────────────────────────────────
+
+5. FCA CONSUMER DUTY — 12-MONTH REVIEW FINDINGS
+   Domain: Financial Services
+   Source: Financial Conduct Authority
+   Reference: FCA-CD-REVIEW-2026
+
+   The FCA has published findings from its 12-month review of the
+   Consumer Duty implementation. Key findings:
+
+   - Price and value assessments: many firms need to improve methodology
+   - Vulnerability identification: good progress but inconsistent
+   - Board reporting: needs to move beyond tick-box compliance
+   - Closed products: reminder that July 2026 deadline for closed
+     products/services is approaching
+
+   Closed products deadline: 31 July 2026
+   No new regulations — but signals enforcement focus areas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF BULLETIN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

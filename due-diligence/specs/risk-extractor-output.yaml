@@ -1,0 +1,93 @@
+# Risk Extractor Sub-Agent Output Spec
+# Extracts material risks from documents with RAG severity ratings
+
+schema:
+  deal_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  total_risks:
+    type: integer
+    required: true
+
+  summary:
+    type: object
+    required: true
+    fields:
+      red_count: { type: integer }
+      amber_count: { type: integer }
+      green_count: { type: integer }
+      deal_breaker_count: { type: integer }
+
+  risks:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        reference: { type: string, required: true, description: "e.g. RISK-001" }
+        category:
+          type: enum
+          required: true
+          values: [litigation, regulatory, contract-dependency, ip, employee, environmental, financial, commercial]
+        document_category:
+          type: enum
+          required: true
+          values: [financial, legal, commercial, hr, ip, regulatory, property, insurance, it]
+        severity:
+          type: enum
+          required: true
+          values: [red, amber, green]
+        deal_breaker:
+          type: boolean
+          required: true
+        title: { type: string, required: true, description: "Short descriptive title" }
+        description: { type: string, required: true, description: "Detailed factual description" }
+        source_documents:
+          type: list
+          required: true
+          items: { type: string }
+          description: "Filenames/paths where the risk was identified"
+        source_extracts:
+          type: list
+          required: false
+          items: { type: string }
+          description: "Key quotes or paraphrases from source documents"
+        potential_impact: { type: string, required: false, description: "Estimated financial or operational impact" }
+        recommended_action:
+          type: enum
+          required: true
+          values: [warranty, indemnity, price-adjustment, condition-precedent, further-investigation, accept, walkaway]
+        action_detail: { type: string, required: false }
+        confidence: { type: float, required: true, min: 0.0, max: 1.0 }
+
+example:
+  deal_id: "DD-2026-001"
+  timestamp: "2026-02-15T11:30:00Z"
+  total_risks: 23
+  summary:
+    red_count: 2
+    amber_count: 8
+    green_count: 13
+    deal_breaker_count: 1
+  risks:
+    - reference: "RISK-001"
+      category: litigation
+      document_category: legal
+      severity: red
+      deal_breaker: true
+      title: "Undisclosed patent infringement claim"
+      description: "Correspondence in the legal folder reveals a patent infringement claim from TechCorp Ltd dated January 2026, seeking damages of £3.2m. This claim is not mentioned in the disclosure letter or information memorandum."
+      source_documents:
+        - "legal/correspondence/techcorp-claim-2026-01.pdf"
+        - "legal/disclosure-letter.pdf"
+      source_extracts:
+        - "TechCorp Ltd alleges infringement of patent GB2025001234"
+      potential_impact: "£3.2m damages claim plus legal costs; potential injunction on core product"
+      recommended_action: indemnity
+      action_detail: "Require seller indemnity for full value of claim plus costs; consider price reduction"
+      confidence: 0.93

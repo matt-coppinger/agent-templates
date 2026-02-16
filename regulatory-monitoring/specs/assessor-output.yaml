@@ -1,0 +1,124 @@
+# Impact Assessor Sub-Agent Output Spec
+# Produces organisational impact assessment for each regulatory change
+
+schema:
+  run_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  assessments:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        change_id:
+          type: string
+          description: "Matches change_id from scanner/analyser output"
+        title:
+          type: string
+
+        affected_departments:
+          type: list
+          items:
+            type: object
+            fields:
+              department: { type: string }
+              impact_type: { type: enum, values: [primary, secondary] }
+              description: { type: string, description: "How this department is affected" }
+
+        cross_functional:
+          type: boolean
+          description: "True if 3+ departments are affected"
+
+        required_actions:
+          type: list
+          items:
+            type: object
+            fields:
+              action: { type: string, description: "Specific task description" }
+              category: { type: enum, values: [policy-change, process-change, training, systems, documentation, other] }
+              owner_department: { type: string }
+              suggested_deadline: { type: date }
+              dependencies: { type: list, required: false, items: { type: string } }
+
+        implementation_effort:
+          type: enum
+          values: [critical, high, medium, low]
+          description: |
+            critical: immediate emergency action, board-level
+            high: significant project, 3+ months
+            medium: moderate effort, 1-3 months
+            low: minor update, under 1 month
+
+        risk_if_ignored:
+          type: enum
+          values: [critical, high, medium, low]
+          description: |
+            critical: significant penalties, criminal liability
+            high: material penalties, regulatory investigation
+            medium: moderate penalties, audit findings
+            low: technical non-compliance, minimal consequences
+
+        enforcement_likelihood:
+          type: enum
+          values: [high, medium, low]
+          description: "How actively is this area being enforced?"
+
+        reputational_exposure:
+          type: enum
+          values: [high, medium, low]
+
+        priority_score:
+          type: integer
+          min: 1
+          max: 10
+          description: "Overall priority (10 = highest)"
+
+        impact_summary:
+          type: string
+          description: "2-3 sentence summary of organisational impact"
+
+example:
+  run_id: "REG-2026-02-15-001"
+  timestamp: "2026-02-15T08:30:00Z"
+  assessments:
+    - change_id: "REG-2026-02-15-001-001"
+      title: "Updated guidance on AI and automated decision-making under UK GDPR"
+      affected_departments:
+        - department: "Data Protection / Privacy"
+          impact_type: primary
+          description: "Must review and update AI impact assessment framework"
+        - department: "IT / Engineering"
+          impact_type: primary
+          description: "Must audit AI systems for compliance with new human review requirements"
+        - department: "HR"
+          impact_type: secondary
+          description: "Any AI used in recruitment or performance management needs review"
+        - department: "Customer Operations"
+          impact_type: secondary
+          description: "Automated customer decision systems need transparency audit"
+      cross_functional: true
+      required_actions:
+        - action: "Audit all AI/automated decision-making systems"
+          category: process-change
+          owner_department: "IT / Engineering"
+          suggested_deadline: "2026-04-15"
+        - action: "Update AI impact assessment template"
+          category: documentation
+          owner_department: "Data Protection / Privacy"
+          suggested_deadline: "2026-03-31"
+        - action: "Review recruitment AI tools for compliance"
+          category: process-change
+          owner_department: "HR"
+          suggested_deadline: "2026-05-01"
+      implementation_effort: medium
+      risk_if_ignored: high
+      enforcement_likelihood: high
+      reputational_exposure: high
+      priority_score: 8
+      impact_summary: "This change requires a cross-functional audit of AI systems, particularly those making decisions about individuals. The 3-month grace period is tight for organisations with multiple AI tools. ICO enforcement priority status makes this high-risk to ignore."

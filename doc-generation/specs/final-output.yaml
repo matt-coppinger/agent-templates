@@ -1,0 +1,72 @@
+# Final Pipeline Output Spec
+# The complete output after human review and approval
+
+schema:
+  doc_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      analysed: { type: datetime }
+      planned: { type: datetime }
+      written: { type: datetime }
+      reviewed: { type: datetime }
+      approved: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  documentation:
+    type: object
+    required: true
+    fields:
+      title: { type: string }
+      doc_type: { type: string }
+      version: { type: string }
+      content: { type: string, description: "Final approved markdown content" }
+      was_edited: { type: boolean, description: "Whether human modified the generated doc" }
+      word_count: { type: integer }
+
+  quality:
+    type: object
+    required: true
+    fields:
+      reviewer_confidence: { type: float }
+      issues_found: { type: integer }
+      issues_resolved: { type: integer }
+      code_coverage: { type: float }
+
+  source_files:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        path: { type: string }
+        last_modified: { type: datetime }
+    description: "Source files that were documented (for diff tracking)"
+
+  human_decision:
+    type: enum
+    required: true
+    values: [approved, edited, rejected, regenerated]
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [analyser, planner, writer, reviewer, human] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking

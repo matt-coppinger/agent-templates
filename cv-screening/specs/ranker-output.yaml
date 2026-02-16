@@ -1,0 +1,128 @@
+# Ranker Sub-Agent Output Spec
+# Batch ranking and shortlist generation
+
+schema:
+  batch_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  job_spec_reference:
+    type: string
+    required: true
+
+  rankings:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        rank: { type: integer }
+        candidate_id: { type: string }
+        composite_score: { type: float }
+        score_breakdown:
+          type: object
+          fields:
+            must_have: { type: float }
+            nice_to_have: { type: float }
+            experience: { type: float }
+            assessment: { type: float }
+        shortlisted: { type: boolean }
+        ranking_reasoning: { type: string }
+
+  shortlist:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        candidate_id: { type: string }
+        rank: { type: integer }
+        composite_score: { type: float }
+        key_strengths: { type: list, items: { type: string } }
+        gaps_to_explore: { type: list, items: { type: string } }
+        interview_questions:
+          type: list
+          items:
+            type: object
+            fields:
+              question: { type: string }
+              rationale: { type: string, description: "Why this question matters for this candidate" }
+
+  borderline_candidates:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        candidate_id: { type: string }
+        composite_score: { type: float }
+        reason_excluded: { type: string }
+        case_for_inclusion: { type: string }
+    description: Candidates just below the shortlist cutoff
+
+  batch_statistics:
+    type: object
+    required: true
+    fields:
+      total_processed: { type: integer }
+      total_skipped: { type: integer }
+      met_minimum_threshold: { type: integer }
+      shortlisted: { type: integer }
+      score_distribution:
+        type: object
+        fields:
+          min: { type: float }
+          max: { type: float }
+          mean: { type: float }
+          median: { type: float }
+      common_gaps: { type: list, items: { type: string }, description: "Most frequent skills gaps across batch" }
+      common_strengths: { type: list, items: { type: string }, description: "Most frequent strengths across batch" }
+
+example:
+  batch_id: "BATCH-2026-02-15"
+  timestamp: "2026-02-15T10:05:00Z"
+  job_spec_reference: "sample-job-spec.md"
+  rankings:
+    - rank: 1
+      candidate_id: "CAND-001"
+      composite_score: 0.84
+      score_breakdown:
+        must_have: 0.875
+        nice_to_have: 0.75
+        experience: 0.95
+        assessment: 0.82
+      shortlisted: true
+      ranking_reasoning: "Strongest overall match with excellent experience score and clear career progression"
+  shortlist:
+    - candidate_id: "CAND-001"
+      rank: 1
+      composite_score: 0.84
+      key_strengths:
+        - "6 years relevant experience with clear progression"
+        - "Demonstrated team leadership and mentoring"
+        - "Quantified cost-saving achievements"
+      gaps_to_explore:
+        - "No direct GraphQL experience"
+        - "Architecture-level design experience unclear"
+      interview_questions:
+        - question: "Describe a system you architected from scratch. What trade-offs did you navigate?"
+          rationale: "Candidate shows strong engineering skills but architecture experience needs validation"
+        - question: "How have you approached learning new technologies when project requirements demanded it?"
+          rationale: "Assessing ability to close the GraphQL gap quickly"
+  borderline_candidates: []
+  batch_statistics:
+    total_processed: 1
+    total_skipped: 0
+    met_minimum_threshold: 1
+    shortlisted: 1
+    score_distribution:
+      min: 0.84
+      max: 0.84
+      mean: 0.84
+      median: 0.84
+    common_gaps: ["GraphQL"]
+    common_strengths: ["Python", "AWS", "Team leadership"]

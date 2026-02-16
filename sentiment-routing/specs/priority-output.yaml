@@ -1,0 +1,115 @@
+# Priority Scorer Sub-Agent Output Spec
+# Calculates P1-P4 priority from emotion and context data
+
+schema:
+  message_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  priority:
+    type: enum
+    required: true
+    values: [P1, P2, P3, P4]
+    description: |
+      P1: Critical — immediate escalation (15min SLA)
+      P2: High — urgent handling (1h SLA)
+      P3: Medium — standard priority (4h SLA)
+      P4: Low — general queue (24h SLA)
+
+  raw_score:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Calculated weighted score before VIP boost
+
+  score_breakdown:
+    type: object
+    required: true
+    fields:
+      anger_component:
+        type: float
+        description: "anger/frustration intensity × anger_weight"
+      urgency_component:
+        type: float
+        description: "urgency intensity × urgency_weight"
+      churn_component:
+        type: float
+        description: "churn_risk score × churn_risk_weight"
+      value_component:
+        type: float
+        description: "account value tier (0-1) × account_value_weight"
+      repeat_component:
+        type: float
+        description: "repeat contact signal × repeat_contact_weight"
+
+  vip_boost_applied:
+    type: boolean
+    required: true
+    description: Whether VIP boost was applied
+
+  p1_trigger:
+    type: string
+    required: false
+    description: If P1 was assigned via trigger (not score), which trigger fired
+
+  escalation:
+    type: object
+    required: true
+    fields:
+      recommended:
+        type: boolean
+        required: true
+        description: Whether escalation is recommended
+      reason:
+        type: string
+        required: false
+        description: Why escalation is recommended
+      target:
+        type: enum
+        required: false
+        values: [team-lead, senior-agent, manager, legal, safety]
+        description: Recommended escalation target
+
+  rationale:
+    type: string
+    required: true
+    description: |
+      Human-readable explanation of the priority decision. Must reference
+      specific data points from emotion and context analyses. 3-5 sentences.
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+
+# Example output
+example:
+  message_id: "MSG-2026-00412"
+  timestamp: "2026-02-15T14:22:06Z"
+  priority: P1
+  raw_score: 0.82
+  score_breakdown:
+    anger_component: 0.255
+    urgency_component: 0.15
+    churn_component: 0.156
+    value_component: 0.12
+    repeat_component: 0.1
+  vip_boost_applied: true
+  p1_trigger: legal_threat
+  escalation:
+    recommended: true
+    reason: "P1 trigger (legal threat) combined with VIP status and high churn risk"
+    target: legal
+  rationale: |
+    Assigned P1 due to legal threat trigger (customer mentioned Trading Standards).
+    Additionally, weighted score of 0.82 independently qualifies for P1. Customer is
+    a VIP (premium tier, £12,500 annual value, 38 months tenure) with a churn risk
+    score of 0.78 driven by competitor mention and 4 contacts in 30 days. This is a
+    repeat contact about an unresolved billing issue. Immediate escalation recommended.
+  confidence: 0.91

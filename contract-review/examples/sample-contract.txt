@@ -1,0 +1,116 @@
+MASTER SERVICES AGREEMENT
+
+Between: TechFlow Solutions Ltd ("Supplier"), a company registered in England and Wales
+(Company No. 12345678), registered office: 100 Innovation Park, London EC2A 4NE
+
+And: Meridian Enterprises Ltd ("Client"), a company registered in England and Wales
+(Company No. 87654321), registered office: 50 Commerce Street, Manchester M1 2AB
+
+Effective Date: 1 April 2026
+
+1. DEFINITIONS AND INTERPRETATION
+
+1.1 In this Agreement, unless the context otherwise requires:
+"Charges" means the fees set out in Schedule 1.
+"Commencement Date" means 1 April 2026.
+"Confidential Information" means all information disclosed by one party to the other in connection with this Agreement.
+"Deliverables" means the items to be delivered as set out in the applicable Statement of Work.
+"Intellectual Property Rights" means patents, copyright, trade marks, and all other intellectual property rights.
+"Services" means the consultancy and software development services described in each Statement of Work.
+"Term" has the meaning given in clause 2.
+
+2. TERM
+
+2.1 This Agreement shall commence on the Commencement Date and shall continue for an initial period of 24 months ("Initial Term").
+
+2.2 Following the Initial Term, this Agreement shall automatically renew for successive periods of 12 months ("Renewal Period") unless either party gives not less than 30 days' written notice prior to the end of the then-current period.
+
+3. SERVICES
+
+3.1 The Supplier shall provide the Services with reasonable skill and care in accordance with each Statement of Work.
+
+3.2 The Supplier shall allocate suitably qualified personnel to perform the Services.
+
+4. CHARGES AND PAYMENT
+
+4.1 The Client shall pay the Charges as set out in Schedule 1. The estimated annual value is £180,000.
+
+4.2 The Supplier shall invoice monthly in arrears. Invoices are payable within 60 days of receipt.
+
+4.3 If the Client fails to pay any invoice by the due date, the Supplier may charge interest at 2% above the Bank of England base rate.
+
+5. INTELLECTUAL PROPERTY
+
+5.1 All Intellectual Property Rights in the Deliverables and any work product created by the Supplier in the course of providing the Services shall vest in and be the absolute property of the Supplier.
+
+5.2 The Supplier grants to the Client a non-exclusive, non-transferable licence to use the Deliverables for the Client's internal business purposes only.
+
+5.3 The Client acknowledges that the Supplier may use general knowledge, skills, and experience gained during the performance of the Services.
+
+6. CONFIDENTIALITY
+
+6.1 Each party shall keep confidential all Confidential Information of the other party.
+
+6.2 The obligations in this clause 6 shall survive termination of this Agreement for a period of 5 years.
+
+6.3 The restrictions in this clause do not apply to information that is publicly available or required to be disclosed by law.
+
+7. LIABILITY
+
+7.1 The Supplier's total aggregate liability under or in connection with this Agreement shall not exceed the Charges paid by the Client in the 6 months preceding the date of the claim.
+
+7.2 Neither party shall be liable for any indirect, consequential, or special loss.
+
+7.3 Nothing in this Agreement limits liability for death or personal injury caused by negligence, or for fraud.
+
+8. INDEMNITY
+
+8.1 The Client shall indemnify the Supplier against all losses, costs, and expenses arising from any third-party claim relating to the Client's use of the Deliverables or breach of this Agreement.
+
+8.2 This indemnity is not subject to the limitation set out in clause 7.
+
+9. TERMINATION
+
+9.1 Either party may terminate this Agreement by giving 30 days' written notice if the other party commits a material breach which is not remedied within 14 days of written notice.
+
+9.2 The Supplier may terminate this Agreement immediately by written notice if the Client fails to pay any undisputed invoice within 30 days of the due date.
+
+9.3 There is no right of termination for convenience.
+
+10. DATA PROTECTION
+
+10.1 Each party shall comply with all applicable data protection legislation including the UK GDPR.
+
+10.2 To the extent that the Supplier processes personal data on behalf of the Client, the parties shall enter into a separate data processing agreement.
+
+11. GOVERNING LAW
+
+11.1 This Agreement shall be governed by and construed in accordance with the laws of England and Wales.
+
+11.2 Any dispute arising out of or in connection with this Agreement shall be referred to and finally resolved by arbitration under the LCIA Rules. The seat of arbitration shall be London. The number of arbitrators shall be one. The language of the arbitration shall be English.
+
+12. FORCE MAJEURE
+
+12.1 Neither party shall be liable for any failure to perform its obligations where such failure results from circumstances beyond its reasonable control.
+
+12.2 The affected party shall notify the other party promptly.
+
+13. GENERAL
+
+13.1 This Agreement constitutes the entire agreement between the parties.
+
+13.2 The Supplier may assign this Agreement to any affiliate without the Client's consent. The Client may not assign this Agreement without the Supplier's prior written consent.
+
+13.3 No variation of this Agreement shall be effective unless in writing and signed by both parties.
+
+SCHEDULE 1 — CHARGES
+
+Monthly retainer: £15,000
+Additional development: £950 per day
+Annual estimated value: £180,000
+
+Signed:
+
+For TechFlow Solutions Ltd: _____________________ Date: ___________
+
+For Meridian Enterprises Ltd: ____________________ Date: ___________

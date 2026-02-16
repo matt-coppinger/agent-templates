@@ -1,0 +1,163 @@
+# Trend Analyser Sub-Agent Output Spec
+# Produces variance calculations, trend analysis, and materiality assessments
+
+schema:
+  report_id:
+    type: string
+    required: true
+
+  timestamp:
+    type: datetime
+    required: true
+
+  variances:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        line_item:
+          type: string
+          required: true
+          description: Canonical KPI name
+        line_type:
+          type: enum
+          required: true
+          values: [revenue, cost, subtotal, margin, ratio]
+        actual_vs_budget:
+          type: object
+          required: false
+          fields:
+            variance_abs: { type: float }
+            variance_pct: { type: float }
+            favourable: { type: boolean }
+            material: { type: boolean }
+            rag_status: { type: enum, values: [green, amber, red] }
+        yoy:
+          type: object
+          required: false
+          fields:
+            change_abs: { type: float }
+            change_pct: { type: float }
+            direction: { type: enum, values: [improving, stable, declining] }
+        mom:
+          type: object
+          required: false
+          fields:
+            change_abs: { type: float }
+            change_pct: { type: float }
+            direction: { type: enum, values: [improving, stable, declining] }
+
+  material_variances:
+    type: list
+    required: true
+    description: Only variances that breached materiality thresholds
+    items:
+      type: object
+      fields:
+        line_item: { type: string }
+        variance_abs: { type: float }
+        variance_pct: { type: float }
+        rag_status: { type: enum, values: [amber, red] }
+        favourable: { type: boolean }
+        threshold_breached: { type: string, description: "Which threshold was breached (e.g. 'revenue_pct > 5%')" }
+
+  waterfall_analysis:
+    type: list
+    required: false
+    description: Decomposition of material variances into contributing factors
+    items:
+      type: object
+      fields:
+        line_item: { type: string }
+        total_variance: { type: float }
+        components:
+          type: list
+          items:
+            type: object
+            fields:
+              driver: { type: string, description: "e.g. 'volume effect', 'price effect', 'mix effect'" }
+              impact: { type: float }
+              description: { type: string }
+
+  trends:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        kpi: { type: string }
+        growth_rate_pct: { type: float, description: "Period-over-period growth rate" }
+        direction: { type: enum, values: [improving, stable, declining] }
+        seasonality_detected: { type: boolean }
+        seasonal_pattern: { type: string, required: false, description: "Description of seasonal pattern if detected" }
+        anomalies:
+          type: list
+          required: false
+          items:
+            type: object
+            fields:
+              period: { type: string }
+              value: { type: float }
+              expected_range: { type: string }
+              description: { type: string }
+
+  analysis_confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Overall confidence in the analysis based on data quality and completeness
+
+  notes:
+    type: list
+    required: false
+    items:
+      type: string
+    description: Analyst notes on assumptions, limitations, or areas needing investigation
+
+example:
+  report_id: "RPT-2026-01"
+  timestamp: "2026-02-15T10:00:10Z"
+  variances:
+    - line_item: revenue
+      line_type: revenue
+      actual_vs_budget:
+        variance_abs: 50000
+        variance_pct: 4.17
+        favourable: true
+        material: false
+        rag_status: green
+      yoy:
+        change_abs: 150000
+        change_pct: 13.64
+        direction: improving
+  material_variances:
+    - line_item: operating_expenses
+      variance_abs: 75000
+      variance_pct: 12.5
+      rag_status: amber
+      favourable: false
+      threshold_breached: "cost_pct > 10%"
+  waterfall_analysis:
+    - line_item: operating_expenses
+      total_variance: 75000
+      components:
+        - driver: "headcount increase"
+          impact: 45000
+          description: "3 new hires in engineering (£15k/month each)"
+        - driver: "software licences"
+          impact: 20000
+          description: "New CRM platform licence commenced"
+        - driver: "other"
+          impact: 10000
+          description: "Miscellaneous increases across departments"
+  trends:
+    - kpi: revenue
+      growth_rate_pct: 13.64
+      direction: improving
+      seasonality_detected: false
+      anomalies: []
+  analysis_confidence: 0.87
+  notes:
+    - "OPEX waterfall is estimated — detailed cost centre breakdown not available in input data"

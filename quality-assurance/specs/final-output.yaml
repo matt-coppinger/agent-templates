@@ -1,0 +1,85 @@
+# Final Pipeline Output Spec
+# The complete output after human review and approval
+
+schema:
+  analysis_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      received: { type: datetime }
+      parsed: { type: datetime }
+      patterns_detected: { type: datetime }
+      root_cause_analysed: { type: datetime }
+      report_generated: { type: datetime }
+      approved: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  report_type:
+    type: enum
+    required: true
+    values: [standard, incident, trend, supplier-quality]
+
+  classification:
+    type: object
+    required: true
+    fields:
+      quality_health: { type: enum, values: [good, warning, critical] }
+      total_defects: { type: integer }
+      critical_defects: { type: integer }
+      analysis_period: { type: string }
+
+  report:
+    type: object
+    required: true
+    fields:
+      executive_summary: { type: string }
+      report_markdown: { type: string, description: "Path to full report markdown file" }
+      was_edited: { type: boolean, description: "Whether human modified the report" }
+
+  corrective_actions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        action: { type: string }
+        priority: { type: string }
+        type: { type: string }
+        owner: { type: string }
+        timeline: { type: string }
+        approved_by: { type: string }
+
+  human_decision:
+    type: enum
+    required: true
+    values: [approved, edited, rejected, escalated]
+
+  quality:
+    type: object
+    required: true
+    fields:
+      report_quality_score: { type: string }
+      data_completeness: { type: float }
+      caveats: { type: list, items: { type: string } }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [data-parser, pattern-detector, root-cause-analyser, report-generator, human] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking

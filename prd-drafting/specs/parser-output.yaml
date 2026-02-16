@@ -1,0 +1,136 @@
+# Input Parser Sub-Agent Output Spec
+# Produces structured extraction of requirements from raw input
+
+schema:
+  spec_id:
+    type: string
+    required: true
+    description: Unique identifier for this specification
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of parsing
+
+  input_type:
+    type: enum
+    required: true
+    values:
+      - user-stories
+      - meeting-notes
+      - feature-request
+      - slack-thread
+      - mixed
+    description: Detected input format
+
+  summary:
+    type: string
+    required: true
+    description: One-paragraph summary of the proposed feature or change
+
+  requirements:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        id: { type: string, description: "REQ-001, REQ-002, etc." }
+        description: { type: string }
+        type: { type: enum, values: [functional, non-functional] }
+        priority: { type: enum, values: [must-have, should-have, could-have, wont-have] }
+        source: { type: string, description: "Quote or reference from input" }
+
+  constraints:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        description: { type: string }
+        type: { type: enum, values: [technical, business, design, regulatory] }
+
+  stakeholders:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        name: { type: string }
+        role: { type: string }
+        is_decision_maker: { type: boolean }
+
+  success_criteria:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        criterion: { type: string }
+        measurable: { type: boolean, description: "Whether this criterion has a quantifiable metric" }
+
+  out_of_scope:
+    type: list
+    required: true
+    items:
+      type: string
+    description: Explicitly excluded items or deferred work
+
+  ambiguities:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        item: { type: string }
+        question: { type: string, description: "Clarifying question for stakeholders" }
+    description: Items that need human clarification
+
+  confidence:
+    type: float
+    required: true
+    min: 0.0
+    max: 1.0
+    description: Parser confidence in the overall extraction
+
+example:
+  spec_id: "PRD-2026-00042"
+  timestamp: "2026-02-15T10:00:00Z"
+  input_type: feature-request
+  summary: "Add bulk export functionality to the reporting dashboard, allowing users to download multiple reports as a single ZIP archive."
+  requirements:
+    - id: "REQ-001"
+      description: "Users can select multiple reports from the dashboard for bulk export"
+      type: functional
+      priority: must-have
+      source: "Need to be able to download all monthly reports at once"
+    - id: "REQ-002"
+      description: "Exported archive must be in ZIP format"
+      type: functional
+      priority: must-have
+      source: "ZIP file with everything in it"
+    - id: "REQ-003"
+      description: "Bulk export must complete within 30 seconds for up to 50 reports"
+      type: non-functional
+      priority: should-have
+      source: "shouldn't take forever"
+  constraints:
+    - description: "Must work with existing reporting API (v2)"
+      type: technical
+    - description: "Launch before Q2 board meeting"
+      type: business
+  stakeholders:
+    - name: "Sarah Chen"
+      role: "Product Manager"
+      is_decision_maker: true
+  success_criteria:
+    - criterion: "80% of power users adopt bulk export within 30 days"
+      measurable: true
+    - criterion: "Reduces time spent on report downloads"
+      measurable: false
+  out_of_scope:
+    - "Scheduled/automated exports"
+    - "Export to formats other than PDF"
+  ambiguities:
+    - item: "Maximum number of reports in a single export"
+      question: "Is there an upper limit on how many reports can be exported at once?"
+  confidence: 0.85

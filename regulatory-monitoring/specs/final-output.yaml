@@ -1,0 +1,92 @@
+# Final Pipeline Output Spec
+# The complete output after a full pipeline run
+
+schema:
+  run_id:
+    type: string
+    required: true
+
+  pipeline_run_id:
+    type: string
+    required: true
+    description: Unique ID for this pipeline execution
+
+  timestamps:
+    type: object
+    required: true
+    fields:
+      started: { type: datetime }
+      scanned: { type: datetime }
+      analysed: { type: datetime }
+      assessed: { type: datetime }
+      briefing_generated: { type: datetime }
+      total_seconds: { type: float, description: "End-to-end pipeline duration" }
+
+  source:
+    type: object
+    required: true
+    fields:
+      name: { type: string }
+      date: { type: date }
+
+  summary:
+    type: object
+    required: true
+    fields:
+      total_changes: { type: integer }
+      new_changes: { type: integer, description: "After deduplication" }
+      duplicates_skipped: { type: integer }
+      critical_items: { type: integer }
+      action_items_generated: { type: integer }
+
+  changes_processed:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        change_id: { type: string }
+        title: { type: string }
+        domain: { type: list, items: { type: string } }
+        urgency: { type: string }
+        impact_level: { type: string }
+        priority_score: { type: integer }
+
+  briefing:
+    type: object
+    required: true
+    fields:
+      executive_summary: { type: string }
+      total_action_items: { type: integer }
+      briefing_file: { type: string, description: "Path to the markdown briefing" }
+
+  deduplication:
+    type: object
+    required: true
+    fields:
+      changes_checked: { type: integer }
+      duplicates_found: { type: integer }
+      new_entries_logged: { type: integer }
+
+  audit_trail:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        stage: { type: enum, values: [scanner, analyser, assessor, briefing-writer] }
+        output_file: { type: string, description: "Path to full stage output" }
+        model_used: { type: string }
+        tokens_used: { type: integer }
+        cost_estimate: { type: float, description: "Estimated API cost in USD" }
+    description: Full traceability for compliance and cost tracking
+
+  alerts_triggered:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        type: { type: enum, values: [urgent-change, deadline-approaching, cross-functional, high-penalty] }
+        change_id: { type: string }
+        message: { type: string }

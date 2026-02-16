@@ -1,0 +1,67 @@
+CURRICULUM VITAE
+
+Sarah Mitchell
+27 Oakwood Drive, Manchester, M20 6RT
+sarah.mitchell@email.com | 07912 345 678
+LinkedIn: linkedin.com/in/sarahmitchell
+
+PERSONAL STATEMENT
+
+Experienced software engineer with 7 years of professional experience building scalable backend systems. Passionate about clean code, mentoring junior developers, and solving complex distributed systems challenges. Looking to take the next step into a senior platform role.
+
+EMPLOYMENT HISTORY
+
+Senior Software Engineer — CloudScale Solutions, Manchester
+March 2021 – Present (4 years)
+- Architected and built a real-time data processing pipeline handling 2M events/day using Python, Kafka, and PostgreSQL
+- Led migration from monolithic architecture to microservices, reducing deployment times from 2 hours to 15 minutes
+- Mentored 4 junior engineers through structured pairing and code review programme
+- Designed RESTful APIs consumed by 3 product teams, documented with OpenAPI specifications
+- Managed AWS infrastructure (EC2, S3, Lambda, RDS) serving 50k daily active users
+
+Software Engineer — DataFlow Ltd, Leeds
+June 2018 – February 2021 (2 years 9 months)
+- Built and maintained Python microservices processing financial transaction data
+- Implemented comprehensive test suite achieving 92% code coverage (unit + integration)
+- Contributed to CI/CD pipeline using Jenkins and Docker
+- Optimised PostgreSQL queries reducing average response time by 40%
+- Participated in on-call rotation for production systems
+
+Junior Software Engineer — WebStart Agency, Manchester
+September 2016 – May 2018 (1 year 9 months)
+- Developed web applications using Python (Django) and JavaScript (React)
+- Built RESTful APIs for mobile application backends
+- Wrote unit tests and participated in code reviews
+- Assisted in migrating legacy PHP applications to Django
+
+EDUCATION
+
+BSc (Hons) Computer Science — University of Manchester, 2016
+Grade: First Class Honours
+
+A-Levels: Mathematics (A*), Computer Science (A), Physics (B) — 2013
+
+CERTIFICATIONS
+
+AWS Solutions Architect Associate — Amazon Web Services, 2022
+Certified Kubernetes Administrator (CKA) — CNCF, 2023
+
+TECHNICAL SKILLS
+
+Languages: Python (expert), TypeScript (proficient), SQL (proficient), Go (basic)
+Frameworks: Django, FastAPI, React, Express.js
+Databases: PostgreSQL, Redis, MongoDB
+Cloud: AWS (EC2, S3, Lambda, RDS, ECS, CloudWatch), basic GCP experience
+DevOps: Docker, Kubernetes, Terraform, Jenkins, GitHub Actions
+Other: Kafka, REST APIs, OpenAPI, Git, Linux, Agile/Scrum
+
+LANGUAGES
+
+English — Native
+French — Intermediate (B1)
+
+INTERESTS
+
+Open source contributor (maintainer of a Python testing utilities library, 200+ GitHub stars)
+Manchester CoderDojo volunteer — teaching coding to young people
+Marathon runner — completed Manchester Marathon 2024

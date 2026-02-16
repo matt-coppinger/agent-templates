@@ -1,0 +1,118 @@
+# Data Parser Sub-Agent Output Spec
+# Produces structured metrics extracted from raw quality data
+
+schema:
+  analysis_id:
+    type: string
+    required: true
+    description: Unique identifier for this analysis run
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of parsing
+
+  data_source:
+    type: object
+    required: true
+    fields:
+      type: { type: enum, values: [defect-report, test-results, inspection-log, mixed] }
+      record_count: { type: integer }
+      date_range_start: { type: datetime }
+      date_range_end: { type: datetime }
+      completeness: { type: float, min: 0.0, max: 1.0, description: "Proportion of records with all required fields" }
+
+  defects:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        defect_id: { type: string }
+        category: { type: string, description: "From defect-categories.md taxonomy" }
+        subcategory: { type: string }
+        severity: { type: enum, values: [critical, major, minor, observation] }
+        description: { type: string }
+        frequency: { type: integer, description: "Number of occurrences" }
+        location: { type: string, description: "Product area or process step" }
+        timestamp: { type: datetime }
+        source:
+          type: object
+          fields:
+            line: { type: string }
+            shift: { type: string }
+            batch: { type: string }
+            supplier: { type: string }
+            inspector: { type: string }
+        status: { type: enum, values: [open, contained, corrected, closed] }
+        measured_value: { type: float, required: false }
+        specification_limit: { type: float, required: false }
+
+  summary:
+    type: object
+    required: true
+    fields:
+      total_defects: { type: integer }
+      by_severity:
+        type: object
+        fields:
+          critical: { type: integer }
+          major: { type: integer }
+          minor: { type: integer }
+          observation: { type: integer }
+      by_category: { type: map, description: "category -> count" }
+      total_units_inspected: { type: integer }
+      defect_rate: { type: float }
+
+  data_quality_flags:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        flag: { type: enum, values: [incomplete, ambiguous, duplicate, outlier] }
+        record_ids: { type: list, items: { type: string } }
+        description: { type: string }
+
+# Example output
+example:
+  analysis_id: "QA-2026-00042"
+  timestamp: "2026-02-15T10:00:00Z"
+  data_source:
+    type: defect-report
+    record_count: 47
+    date_range_start: "2026-02-01T00:00:00Z"
+    date_range_end: "2026-02-14T23:59:59Z"
+    completeness: 0.91
+  defects:
+    - defect_id: "DEF-001"
+      category: dimensional
+      subcategory: out-of-tolerance
+      severity: major
+      description: "Bore diameter 0.3mm above upper specification limit"
+      frequency: 12
+      location: "CNC Mill Station 3"
+      timestamp: "2026-02-03T14:30:00Z"
+      source:
+        line: "Line B"
+        shift: "Night"
+        batch: "B-2026-0089"
+        supplier: "Acme Materials"
+        inspector: "J. Smith"
+      status: open
+      measured_value: 25.3
+      specification_limit: 25.0
+  summary:
+    total_defects: 47
+    by_severity:
+      critical: 2
+      major: 15
+      minor: 22
+      observation: 8
+    by_category:
+      dimensional: 18
+      surface-finish: 12
+      contamination: 9
+      assembly: 8
+    total_units_inspected: 1200
+    defect_rate: 0.039

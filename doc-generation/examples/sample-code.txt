@@ -1,0 +1,211 @@
+"""
+User Management API — v2.3
+Handles user CRUD operations with role-based access control.
+"""
+
+from datetime import datetime
+from typing import Optional, List
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class UserRole(Enum):
+    """Roles available within the system."""
+    ADMIN = "admin"
+    EDITOR = "editor"
+    VIEWER = "viewer"
+
+
+@dataclass
+class User:
+    """Represents a system user.
+
+    Attributes:
+        user_id: Unique identifier (UUID format).
+        email: User's email address, must be unique.
+        display_name: Human-readable name shown in the UI.
+        role: Access level within the system.
+        created_at: Timestamp of account creation.
+        is_active: Whether the account is enabled.
+        tags: Arbitrary metadata tags for filtering.
+    """
+    user_id: str
+    email: str
+    display_name: str
+    role: UserRole = UserRole.VIEWER
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    is_active: bool = True
+    tags: List[str] = field(default_factory=list)
+
+
+class UserNotFoundError(Exception):
+    """Raised when a requested user does not exist."""
+    pass
+
+
+class DuplicateEmailError(Exception):
+    """Raised when attempting to create a user with an existing email."""
+    pass
+
+
+class UserService:
+    """Service layer for user management operations.
+
+    Provides CRUD operations with validation, event emission,
+    and audit logging. Requires a database connection and an
+    event bus instance.
+    """
+
+    def __init__(self, db_connection, event_bus):
+        """Initialise the user service.
+
+        Args:
+            db_connection: Active database connection.
+            event_bus: Event bus for publishing domain events.
+        """
+        self._db = db_connection
+        self._events = event_bus
+
+    def get_user(self, user_id: str) -> User:
+        """Retrieve a user by their unique identifier.
+
+        Args:
+            user_id: The UUID of the user to retrieve.
+
+        Returns:
+            The User object if found.
+
+        Raises:
+            UserNotFoundError: If no user exists with the given ID.
+        """
+        user = self._db.query("SELECT * FROM users WHERE id = %s", user_id)
+        if not user:
+            raise UserNotFoundError(f"No user found with ID: {user_id}")
+        return self._map_to_user(user)
+
+    def create_user(self, email: str, display_name: str, role: UserRole = UserRole.VIEWER) -> User:
+        """Create a new user account.
+
+        Validates the email is unique, creates the user record,
+        and publishes a user.created event.
+
+        Args:
+            email: Email address for the new account.
+            display_name: Human-readable display name.
+            role: Initial role assignment. Defaults to VIEWER.
+
+        Returns:
+            The newly created User object.
+
+        Raises:
+            DuplicateEmailError: If the email is already registered.
+            ValueError: If email format is invalid.
+        """
+        if self._email_exists(email):
+            raise DuplicateEmailError(f"Email already registered: {email}")
+
+        user = User(
+            user_id=self._generate_id(),
+            email=email,
+            display_name=display_name,
+            role=role,
+        )
+        self._db.insert("users", user.__dict__)
+        self._events.publish("user.created", {"user_id": user.user_id})
+        return user
+
+    def update_user(self, user_id: str, **kwargs) -> User:
+        """Update an existing user's attributes.
+
+        Only the provided keyword arguments are updated; other
+        fields remain unchanged.
+
+        Args:
+            user_id: The UUID of the user to update.
+            **kwargs: Fields to update (email, display_name, role, is_active, tags).
+
+        Returns:
+            The updated User object.
+
+        Raises:
+            UserNotFoundError: If no user exists with the given ID.
+            DuplicateEmailError: If updating email to one already in use.
+        """
+        existing = self.get_user(user_id)
+        if "email" in kwargs and kwargs["email"] != existing.email:
+            if self._email_exists(kwargs["email"]):
+                raise DuplicateEmailError(f"Email already registered: {kwargs['email']}")
+
+        self._db.update("users", user_id, kwargs)
+        self._events.publish("user.updated", {"user_id": user_id, "fields": list(kwargs.keys())})
+        return self.get_user(user_id)
+
+    def delete_user(self, user_id: str) -> None:
+        """Soft-delete a user account.
+
+        Sets is_active to False rather than removing the record.
+        Publishes a user.deleted event.
+
+        Args:
+            user_id: The UUID of the user to delete.
+
+        Raises:
+            UserNotFoundError: If no user exists with the given ID.
+        """
+        self.get_user(user_id)  # Verify exists
+        self._db.update("users", user_id, {"is_active": False})
+        self._events.publish("user.deleted", {"user_id": user_id})
+
+    def list_users(
+        self,
+        role: Optional[UserRole] = None,
+        is_active: Optional[bool] = None,
+        tags: Optional[List[str]] = None,
+        page: int = 1,
+        page_size: int = 50,
+    ) -> List[User]:
+        """List users with optional filtering and pagination.
+
+        Args:
+            role: Filter by role. None returns all roles.
+            is_active: Filter by active status. None returns all.
+            tags: Filter by tags (AND logic). None ignores tags.
+            page: Page number (1-indexed).
+            page_size: Results per page. Maximum 100.
+
+        Returns:
+            List of User objects matching the filters.
+        """
+        filters = {}
+        if role is not None:
+            filters["role"] = role.value
+        if is_active is not None:
+            filters["is_active"] = is_active
+        if tags:
+            filters["tags"] = tags
+
+        offset = (page - 1) * min(page_size, 100)
+        results = self._db.query_many("users", filters, limit=min(page_size, 100), offset=offset)
+        return [self._map_to_user(r) for r in results]
+
+    # DEPRECATED: Use list_users with role filter instead
+    def get_users_by_role(self, role: UserRole) -> List[User]:
+        """Retrieve all users with a specific role.
+
+        .. deprecated:: 2.1
+            Use :meth:`list_users` with the ``role`` parameter instead.
+        """
+        return self.list_users(role=role)
+
+    def _email_exists(self, email: str) -> bool:
+        """Check if an email is already registered."""
+        return self._db.exists("users", {"email": email})
+
+    def _generate_id(self) -> str:
+        """Generate a new UUID for a user."""
+        import uuid
+        return str(uuid.uuid4())
+
+    def _map_to_user(self, row) -> User:
+        """Map a database row to a User dataclass."""
+        return User(**row)

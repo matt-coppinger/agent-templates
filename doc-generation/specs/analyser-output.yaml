@@ -1,0 +1,165 @@
+# Code Analyser Sub-Agent Output Spec
+# Produces structured extraction of source code elements
+
+schema:
+  doc_id:
+    type: string
+    required: true
+    description: Unique identifier for this documentation run
+
+  timestamp:
+    type: datetime
+    required: true
+    description: ISO 8601 timestamp of analysis
+
+  source_files:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        path: { type: string }
+        language: { type: string, description: "Programming language detected" }
+        lines: { type: integer }
+        last_modified: { type: datetime }
+
+  functions:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        name: { type: string }
+        file: { type: string }
+        line: { type: integer }
+        visibility: { type: enum, values: [public, private, protected, internal] }
+        parameters:
+          type: list
+          items:
+            type: object
+            fields:
+              name: { type: string }
+              type: { type: string }
+              default: { type: string }
+              description: { type: string }
+        return_type: { type: string }
+        docstring: { type: string }
+        decorators: { type: list, items: { type: string } }
+        is_deprecated: { type: boolean }
+        deprecation_note: { type: string }
+
+  classes:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        name: { type: string }
+        file: { type: string }
+        line: { type: integer }
+        parent_classes: { type: list, items: { type: string } }
+        interfaces: { type: list, items: { type: string } }
+        properties:
+          type: list
+          items:
+            type: object
+            fields:
+              name: { type: string }
+              type: { type: string }
+              visibility: { type: enum, values: [public, private, protected] }
+              description: { type: string }
+        methods: { type: list, items: { type: string }, description: "References to function names" }
+        docstring: { type: string }
+
+  endpoints:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        path: { type: string }
+        method: { type: enum, values: [GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS] }
+        handler: { type: string }
+        parameters: { type: list, items: { type: object } }
+        request_body: { type: string, description: "Type or schema reference" }
+        response_type: { type: string }
+        auth_required: { type: boolean }
+        rate_limit: { type: string }
+        version: { type: string }
+
+  types:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        name: { type: string }
+        kind: { type: enum, values: [interface, type-alias, enum, struct, class] }
+        file: { type: string }
+        fields: { type: list, items: { type: object } }
+        docstring: { type: string }
+
+  dependencies:
+    type: list
+    required: true
+    items:
+      type: object
+      fields:
+        name: { type: string }
+        version: { type: string }
+        is_external: { type: boolean }
+        used_by: { type: list, items: { type: string } }
+
+  markers:
+    type: list
+    required: false
+    items:
+      type: object
+      fields:
+        type: { type: enum, values: [TODO, FIXME, HACK, DEPRECATED, NOTE] }
+        message: { type: string }
+        file: { type: string }
+        line: { type: integer }
+
+  summary:
+    type: object
+    required: true
+    fields:
+      total_functions: { type: integer }
+      public_functions: { type: integer }
+      total_classes: { type: integer }
+      total_endpoints: { type: integer }
+      total_types: { type: integer }
+      languages: { type: list, items: { type: string } }
+      documentation_coverage: { type: float, description: "Ratio of items with docstrings" }
+
+example:
+  doc_id: "DOC-2026-00042"
+  timestamp: "2026-02-15T10:00:00Z"
+  source_files:
+    - path: "src/api/users.py"
+      language: python
+      lines: 245
+      last_modified: "2026-02-14T16:30:00Z"
+  functions:
+    - name: "get_user"
+      file: "src/api/users.py"
+      line: 42
+      visibility: public
+      parameters:
+        - name: "user_id"
+          type: "str"
+          default: null
+          description: "The unique identifier for the user"
+      return_type: "User"
+      docstring: "Retrieve a user by their unique identifier."
+      decorators: ["@app.get('/users/{user_id}')"]
+      is_deprecated: false
+  summary:
+    total_functions: 12
+    public_functions: 8
+    total_classes: 3
+    total_endpoints: 5
+    total_types: 4
+    languages: ["python"]
+    documentation_coverage: 0.75

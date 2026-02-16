@@ -1,0 +1,31 @@
+CONTENT BRIEF
+=============
+
+Title/Topic: How AI is transforming content marketing for mid-size B2B companies
+
+Content type: Blog post
+Also repurpose for: LinkedIn, email newsletter teaser
+
+Target audience: Marketing directors and content leads at B2B companies with 50–500 employees. They're under pressure to produce more content with flat budgets and small teams. Technically literate but not AI experts.
+
+Key messages:
+1. AI-assisted content workflows can dramatically increase output without growing headcount
+2. The key is structured pipelines, not just throwing prompts at a chatbot
+3. Brand consistency is achievable with the right guardrails and review process
+
+Tone: Professional-friendly. Knowledgeable but not preachy. We're sharing practical experience, not lecturing.
+
+SEO keywords:
+- Primary: "AI content marketing"
+- Secondary: "B2B content strategy", "content pipeline automation", "AI marketing tools"
+
+Word count: ~1,200 words (blog), ~300 words (LinkedIn), ~150 words (email teaser)
+
+CTA: Download our free content pipeline template (link: /resources/content-pipeline-template)
+
+Constraints:
+- Don't mention specific AI tool names (keep it vendor-neutral)
+- Include at least two statistics with sources
+- Avoid the "AI will replace writers" narrative — frame as augmentation
+
+Deadline: 20 February 2026
