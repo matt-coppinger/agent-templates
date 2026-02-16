@@ -1,6 +1,6 @@
 # Agent Templates
 
-Open source, production-ready agent templates for [Claude Code](https://code.claude.com). Each template implements a real enterprise use case using multiple sub-agents with structured YAML output specs, human review gates, and full audit trails.
+Open source agent templates for [Claude Code](https://code.claude.com). Each template implements a real enterprise use case using multiple sub-agents with structured YAML output specs, human review gates, and full audit trails.
 
 ## Philosophy
 
